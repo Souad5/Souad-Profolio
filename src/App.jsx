@@ -1,16 +1,17 @@
-import React from 'react'
-import './App.css'
-import Navbar from './Components/Navbar/Navbar'
-import { Outlet } from 'react-router'
-
+import { Outlet } from "react-router";
+import "./App.css";
+import Footer from "./Components/Footer";
+import Navbar from "./Components/Navbar";
 function App() {
-
   return (
     <>
-     <Navbar />
-     <Outlet />
+      <Navbar />
+      <div className="min-h-[calc(100vh-160px)]">
+        <Outlet />
+      </div>
+      <Footer />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
