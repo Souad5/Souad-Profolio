@@ -10,6 +10,8 @@ const skills = [
   { name: "MongoDB", level: 70 },
 ];
 
+
+
 export default function Skills() {
   return (
     <section className="min-h-screen px-4 py-12 bg-gray-50 text-gray-800">
