@@ -20,9 +20,9 @@ const educationData = [
 
 export default function Education() {
   return (
-    <section className="min-h-screen px-4 py-12 bg-white text-gray-800">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-10 border-b-2 border-blue-600 inline-block pb-2">
+    <section className="px-4 py-12 bg-white text-gray-800">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-3xl font-bold mb-10 text-center pb-2">
           Education
         </h2>
 
@@ -30,7 +30,7 @@ export default function Education() {
           {educationData.map((edu, index) => (
             <motion.div
               key={index}
-              className="bg-gray-50 shadow-sm border border-gray-200 p-6 rounded-md"
+              className="bg-gray-50 shadow-sm border  border-gray-200 p-6 rounded-md"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.2 }}
