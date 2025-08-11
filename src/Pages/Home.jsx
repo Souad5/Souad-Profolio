@@ -35,7 +35,7 @@ export default function Home() {
 
         {/* Resume Button */}
         <a
-          href="/Md Souad Al Kabir (MERN).pdf"
+          href={"https://drive.google.com/file/d/17FQdoGB4WevmWnxgjgw4CwjY-wS4h9_M/view?usp=drive_link"}
           download
           className="btn btn-primary"
         >

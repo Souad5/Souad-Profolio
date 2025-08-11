@@ -125,21 +125,23 @@ export default function Contact() {
               name="user_name"
               placeholder="Your Name"
               required
-              className="w-full border p-3 rounded"
+              className="input input-neutral w-full"
             />
+            <br />
             <input
               type="email"
               name="user_email"
               placeholder="Your Email"
               required
-              className="w-full border p-3 rounded"
+              className="input input-neutral w-full"
             />
+            <br />
             <textarea
               name="message"
               placeholder="Your Message"
               rows="5"
               required
-              className="w-full border p-3 rounded resize-none"
+              className="textarea textarea-neutral w-full resize-none"
             ></textarea>
             <button
               type="submit"
