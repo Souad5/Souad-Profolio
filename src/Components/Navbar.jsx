@@ -5,7 +5,7 @@ import { Link } from "react-scroll";
 
 export default function Navbar() {
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-gray-800 text-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
         <div>
           <h1 className="text-xl font-bold">Md Souad.</h1>
@@ -14,27 +14,27 @@ export default function Navbar() {
           <ul className="hidden md:flex space-x-6 text-gray-700 font-medium">
             <li className="cursor-pointer">
               <Link to="home" smooth={true} duration={500}>
-                Home
+                <span className="text-white">Home</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="about" smooth={true} duration={500}>
-                About
+                <span className="text-white">About</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="skills" smooth={true} duration={500}>
-                Skills
+                <span className="text-white">Skills</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="projects" smooth={true} duration={500}>
-                Projects
+                <span className="text-white">Projects</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="contact" smooth={true} duration={500}>
-                Contact
+                <span className="text-white">Contact</span>
               </Link>
             </li>
           </ul>
