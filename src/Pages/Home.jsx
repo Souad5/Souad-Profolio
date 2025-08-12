@@ -37,6 +37,7 @@ export default function Home() {
         <a
           href={"https://drive.google.com/file/d/17FQdoGB4WevmWnxgjgw4CwjY-wS4h9_M/view?usp=drive_link"}
           download
+          target="_blank"
           className="btn btn-primary"
         >
           Download Resume<IoMdDownload />

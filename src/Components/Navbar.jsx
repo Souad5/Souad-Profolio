@@ -14,54 +14,53 @@ export default function Navbar() {
           <ul className="hidden md:flex space-x-6 text-gray-700 font-medium">
             <li className="cursor-pointer">
               <Link to="home" smooth={true} duration={500}>
-                <span className="text-white">Home</span>
+                <span className="text-white hover:text-gray-400">Home</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="about" smooth={true} duration={500}>
-                <span className="text-white">About</span>
+                <span className="text-white hover:text-gray-400">About</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="skills" smooth={true} duration={500}>
-                <span className="text-white">Skills</span>
+                <span className="text-white hover:text-gray-400">Skills</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="projects" smooth={true} duration={500}>
-                <span className="text-white">Projects</span>
+                <span className="text-white hover:text-gray-400">Projects</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="contact" smooth={true} duration={500}>
-                <span className="text-white">Contact</span>
+                <span className="text-white hover:text-gray-400">Contact</span>
               </Link>
             </li>
           </ul>
         </div>
-        <div >
-         
+        <div>
           {/* Resume Button */}
           <a
             href={
               "https://drive.google.com/file/d/17FQdoGB4WevmWnxgjgw4CwjY-wS4h9_M/view?usp=drive_link"
             }
             download
+            target="_blank"
             className="btn btn-primary invisible md:visible "
           >
             Resume
             <IoMdDownload />
           </a>
 
-           {/* dropdown */}
-        
+          {/* dropdown */}
+
           <button
             className="btn md:invisible visible"
             popoverTarget="popover-1"
             style={{ anchorName: "--anchor-1" } /* as React.CSSProperties */}
           >
             <CiMenuBurger />
-
           </button>
 
           <ul
@@ -74,31 +73,30 @@ export default function Navbar() {
           >
             <li className="cursor-pointer">
               <Link to="home" smooth={true} duration={500}>
-                Home
+                <span className="text-black">Home</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="about" smooth={true} duration={500}>
-                About
+                <span className="text-black">About</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="skills" smooth={true} duration={500}>
-                Skills
+                <span className="text-black">Skills</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="projects" smooth={true} duration={500}>
-                Projects
+                <span className="text-black">Projects</span>
               </Link>
             </li>
             <li className="cursor-pointer">
               <Link to="contact" smooth={true} duration={500}>
-                Contact
+                <span className="text-black">Contacts</span>
               </Link>
             </li>
           </ul>
-
         </div>
       </div>
     </nav>
