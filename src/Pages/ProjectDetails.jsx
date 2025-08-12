@@ -1,4 +1,5 @@
 export default function ProjectDetails({ project, onBack }) {
+
   return (
     <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
       <button

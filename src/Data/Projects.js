@@ -42,7 +42,30 @@ const projects = [
     description: "A community-driven platform to reduce food waste by connecting restaurants, grocery stores, and individuals with surplus food to those in need.",
     challenges: "Implementing location-based search and real-time availability updates was challenging.",
     improvements: "Integrate a mobile app, add food safety verification, and enable automated pickup scheduling.",
-  }
+  },
+  {
+  "id": 5,
+  "name": "Auctions Gallery",
+  "image": "/Auction.png",
+  "live": "https://souada11assignment7ph.surge.sh/",
+  "github": "https://github.com/Souad5/React-Assignment-7",
+  "techStack": "React, Tailwind CSS",
+  "description": "A simple auction platform where users can add items to their favorites list and view the total cost of selected items.",
+  "challenges": "Implementing persistent favorites state and calculating total cost dynamically.",
+  "improvements": "Add authentication, real-time bidding, and database integration for storing auction data."
+},
+{
+  "id": 6,
+  "name": "English Janala",
+  "image": "/English.png",
+  "live": "https://souad5.github.io/English-Janala-A6-PH/",
+  "github": "https://github.com/Souad5/English-Janala-A6-PH",
+  "techStack": "HTML, Tailwind CSS, JavaScript",
+  "description": "An interactive platform to help users learn and practice English vocabulary with Bangla meanings, examples, and quizzes.",
+  "challenges": "Designing an engaging UI and organizing vocabulary data efficiently.",
+  "improvements": "Add spaced repetition learning, user accounts, and progress tracking."
+}
+
 ];
 
 export default projects;
