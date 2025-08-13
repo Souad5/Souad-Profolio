@@ -7,14 +7,14 @@ export default function Projects() {
   const [selectedProject, setSelectedProject] = useState(null);
 
   return (
-    <section className="px-4 py-12 bg-gradient-to-br from-gray-900 via-gray-800 to-black min-h-screen">
+    <section className=" p-10 bg-gradient-to-br from-gray-900 via-gray-800 to-black ">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold mb-10 text-center text-white">
           My Projects
         </h2>
 
         {!selectedProject ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
             {projects.map((project, index) => (
               <motion.div
                 key={project.id}

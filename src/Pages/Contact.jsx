@@ -48,8 +48,8 @@ export default function Contact() {
   };
 
   return (
-    <section className="relative px-4 py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black  h-screen flex items-center justify-center">
-
+    <section className="relative px-4 py-16 bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col items-center justify-center">
+<h1 className="text-4xl font-extrabold text-center text-white mb-10">Contact</h1>
       <motion.div
         className="relative w-full rounded-3xl shadow-2xl overflow-hidden max-w-7xl mx-auto "
         initial={{ opacity: 0, y: 50 }}
@@ -57,8 +57,7 @@ export default function Contact() {
         transition={{ duration: 1 }}
       >
         
-        {/* Animated Gradient Border */}
-        <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 blur-xl animate-spin-slow opacity-60 "></div>
+        
 
         {/* Inner Card */}
         <div className="relative bg-gray-900 rounded-3xl p-8 flex flex-col md:flex-row gap-10 shadow-xl">

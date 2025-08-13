@@ -25,7 +25,7 @@ const educationData = [
 export default function Education() {
   return (
     <section className="relative min-h-screen bg-gray-900 px-4 py-20 overflow-hidden">
-      <h2 className="text-5xl font-extrabold text-center text-white mb-20">
+      <h2 className="text-4xl font-extrabold text-center text-white mb-10">
         🎓 My Education
       </h2>
 

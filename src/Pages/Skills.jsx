@@ -24,19 +24,19 @@ const skillCategories = {
 
 export default function Skills() {
   return (
-    <section className="px-4 py-16 bg-gradient-to-b from-gray-900 to-black text-white relative overflow-hidden">
+    <section className="px-4 py-16  bg-gradient-to-b from-gray-900 to-black text-white relative overflow-hidden">
       {/* Glow background accents */}
       <div className="absolute -top-40 left-0 w-[500px] h-[500px] bg-blue-600/30 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-500/30 rounded-full blur-3xl animate-ping"></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.h2
-          className="text-4xl font-extrabold text-center mb-14 tracking-wide"
+          className="text-4xl font-extrabold text-center text-white mb-10 tracking-wide"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          🚀 My <span className="text-blue-400">Skills</span>
+          🚀 My <span className="text-4xl font-extrabold text-center  mb-10 text-blue-400">Skills</span>
         </motion.h2>
 
         {/* Skill Cards */}

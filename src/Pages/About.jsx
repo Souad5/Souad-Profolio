@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 export default function About() {
   return (
-    <section className="px-6 py-16 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
+    <section className="px-6 py-16  bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
       <motion.div
         className="max-w-7xl w-full flex flex-row-reverse justify-between gap-12 items-center"
         initial={{ opacity: 0, y: 30 }}
@@ -30,7 +30,7 @@ export default function About() {
           transition={{ duration: 1 }}
           className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-xl space-y-6"
         >
-          <h2 className="text-4xl font-bold border-b-2 border-blue-500 inline-block pb-1">
+          <h2 className="text-4xl font-extrabold underline text-white mb-10">
             About Me
           </h2>
 
