@@ -9,30 +9,20 @@ export default function Footer() {
     { name: "About", to: "about" },
     { name: "Skills", to: "skills" },
     { name: "Projects", to: "projects" },
+    { name: "Contact", to: "contact" },
   ];
 
   const socialLinks = [
     { name: "GitHub", icon: <FaGithub />, url: "https://github.com/souad5" },
-    {
-      name: "LinkedIn",
-      icon: <FaLinkedin />,
-      url: "https://linkedin.com/in/md-souad-al-kabir",
-    },
-    {
-      name: "Facebook",
-      icon: <FaFacebook />,
-      url: "https://www.facebook.com/souadalkabirmaruf",
-    },
+    { name: "LinkedIn", icon: <FaLinkedin />, url: "https://linkedin.com/in/md-souad-al-kabir" },
+    { name: "Facebook", icon: <FaFacebook />, url: "https://www.facebook.com/souadalkabirmaruf" },
   ];
 
   return (
-    <footer className="bg-gray-800 text-white py-6 mt-10">
+    <footer className="bg-gray-900 text-white py-8 border-t border-gray-700">
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-        
         {/* Left Section */}
-        <div className="text-sm">
-          <p>&copy; {currentYear} Md Souad Al Kabir. All rights reserved.</p>
-        </div>
+        <p className="text-sm text-gray-400">&copy; {currentYear} Md Souad Al Kabir. All rights reserved.</p>
 
         {/* Navigation Links */}
         <nav className="hidden md:flex space-x-6 text-sm font-medium">
@@ -42,28 +32,28 @@ export default function Footer() {
               to={link.to}
               smooth={true}
               duration={500}
-              className="cursor-pointer hover:text-gray-400"
+              className="cursor-pointer hover:text-blue-400 transition-colors relative group"
             >
               {link.name}
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-blue-400 transition-all group-hover:w-full"></span>
             </Link>
           ))}
         </nav>
 
         {/* Social Icons */}
-        <div className="flex flex-row items-center md:items-end">
-          <div className="flex flex-row gap-2 text-sm">
-            {socialLinks.map(({ name, icon, url }) => (
-              <a
-                key={name}
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-2 hover:text-gray-400"
-              >
-                {icon} {name}
-              </a>
-            ))}
-          </div>
+        <div className="flex gap-4 text-2xl">
+          {socialLinks.map(({ name, icon, url }) => (
+            <a
+              key={name}
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-blue-400 transition-colors"
+              aria-label={name}
+            >
+              {icon}
+            </a>
+          ))}
         </div>
       </div>
     </footer>

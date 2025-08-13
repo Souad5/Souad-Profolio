@@ -30,7 +30,6 @@ export default function Contact() {
           console.log(result.text);
           setSuccess(true);
           formRef.current.reset();
-
           swal({
             icon: "success",
             title: "Message Sent!",
@@ -49,108 +48,107 @@ export default function Contact() {
   };
 
   return (
-    <section className="px-4 py-12 bg-gray-50 text-gray-800 flex items-center justify-center">
+    <section className="relative px-4 py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black  h-screen flex items-center justify-center">
+
       <motion.div
-        className="w-full bg-white shadow-md p-6 rounded-lg md:max-w-7xl"
-        initial={{ opacity: 0, y: 40 }}
+        className="relative w-full rounded-3xl shadow-2xl overflow-hidden max-w-7xl mx-auto "
+        initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
       >
-        <h2 className="text-2xl font-bold text-center mb-5">Contact Me</h2>
+        
+        {/* Animated Gradient Border */}
+        <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 blur-xl animate-spin-slow opacity-60 "></div>
 
-        <div className="flex flex-col md:flex-row items-start justify-between gap-10">
+        {/* Inner Card */}
+        <div className="relative bg-gray-900 rounded-3xl p-8 flex flex-col md:flex-row gap-10 shadow-xl">
           {/* Contact Info */}
-          <div className="flex flex-col gap-5 w-full md:w-1/3">
-            <p className="text-2xl">Contact me for collaboration</p>
-            <p>Reach out today to discuss your projects needs and start collaborating on something amazing.</p>
-            <p className="flex items-center text-xl gap-2">
-              <FaEnvelope className="text-blue-600" />
-              <a
-                href="mailto:souadalkabir@gmail.com"
-                className="hover:underline break-all"
-              >
-                souadalkabir@gmail.com
-              </a>
+          <motion.div
+            className="flex flex-col gap-5 w-full md:w-1/3 text-white"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h2 className="text-3xl font-bold mb-2">Get in Touch</h2>
+            <p className="text-gray-300 mb-4">
+              I’m excited to collaborate! Drop a message and let’s create something amazing together.
             </p>
-            <p className="flex items-center text-xl gap-2">
-              <FaPhoneAlt className="text-blue-600" />
-              <a href="tel:+8801830807523" className="hover:underline">
-                +8801830807523
-              </a>
-            </p>
-            <p className="flex items-center text-xl gap-2">
-              <FaWhatsapp className="text-green-500" />
-              <a
-                href="https://wa.me/8801830807523"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline"
-              >
-                +8801830807523
-              </a>
-            </p>
-            {/* Social Links */}
-            <div className="flex gap-6 text-2xl mt-4 text-gray-700">
-              <a
-                href="https://github.com/souad5"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-              >
-                <FaGithub />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/souadalkabir/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-              >
-                <FaLinkedin />
-              </a>
-              <a
-                href="https://www.facebook.com/souadalkabirmaruf"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-              >
-                <FaFacebook />
-              </a>
+            <div className="space-y-2">
+              <p className="flex items-center gap-2 text-lg hover:text-blue-400 transition-colors">
+                <FaEnvelope /> 
+                <a href="mailto:souadalkabir@gmail.com">souadalkabir@gmail.com</a>
+              </p>
+              <p className="flex items-center gap-2 text-lg hover:text-blue-400 transition-colors">
+                <FaPhoneAlt /> 
+                <a href="tel:+8801830807523">+8801830807523</a>
+              </p>
+              <p className="flex items-center gap-2 text-lg hover:text-green-400 transition-colors">
+                <FaWhatsapp /> 
+                <a href="https://wa.me/8801830807523" target="_blank" rel="noreferrer">
+                  +8801830807523
+                </a>
+              </p>
             </div>
-          </div>
 
-          {/* Email Form */}
-          <form ref={formRef} onSubmit={sendEmail} className="flex-1 space-y-4">
+            <div className="flex gap-5 mt-6 text-3xl">
+              <a href="https://github.com/souad5" target="_blank" rel="noreferrer"><FaGithub className="hover:text-blue-400 transition-colors" /></a>
+              <a href="https://www.linkedin.com/in/souadalkabir/" target="_blank" rel="noreferrer"><FaLinkedin className="hover:text-blue-400 transition-colors" /></a>
+              <a href="https://www.facebook.com/souadalkabirmaruf" target="_blank" rel="noreferrer"><FaFacebook className="hover:text-blue-400 transition-colors" /></a>
+            </div>
+          </motion.div>
+
+          {/* Contact Form */}
+          <motion.form
+            ref={formRef}
+            onSubmit={sendEmail}
+            className="flex-1 flex flex-col gap-4"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
             <input
               type="text"
               name="user_name"
               placeholder="Your Name"
               required
-              className="input input-neutral w-full"
+              className="input input-bordered w-full bg-gray-800 text-white placeholder-gray-400 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
             />
-            <br />
             <input
               type="email"
               name="user_email"
               placeholder="Your Email"
               required
-              className="input input-neutral w-full"
+              className="input input-bordered w-full bg-gray-800 text-white placeholder-gray-400 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
             />
-            <br />
             <textarea
               name="message"
               placeholder="Your Message"
               rows="5"
               required
-              className="textarea textarea-neutral w-full resize-none"
+              className="textarea textarea-bordered w-full bg-gray-800 text-white placeholder-gray-400 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 resize-none"
             ></textarea>
             <button
               type="submit"
-              className="w-full btn btn-primary ">
+              className="mt-2 py-3 rounded-xl bg-linear-to-r/decreasing from-indigo-500 to-teal-400 hover:scale-105 transition-transform duration-300 font-bold text-white shadow-lg"
+            >
               Send Message
             </button>
-          </form>
+          </motion.form>
         </div>
       </motion.div>
+
+      {/* Spin Animation */}
+      <style>
+        {`
+          @keyframes spin-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          .animate-spin-slow {
+            animation: spin-slow 6s linear infinite;
+          }
+        `}
+      </style>
     </section>
   );
 }
