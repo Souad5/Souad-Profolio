@@ -56,8 +56,8 @@ export default function About() {
             <span className="text-pink-400 font-semibold">
               clean, user-friendly
             </span>{" "}
-            solutions with great UI/UX. I enjoy working on both
-            <span className="text-blue-300">frontend</span> and
+            solutions with great UI/UX. I enjoy working on both{" "}
+            <span className="text-blue-300">frontend</span> and{" "}
             <span className="text-blue-300">backend</span> to create complete
             digital products.
           </p>
