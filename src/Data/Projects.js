@@ -13,7 +13,7 @@ const projects = [
   {
     id: 2,
     name: "Bill Management App",
-    image: "/Bills.png",
+    image: "/Pay Bill.png",
     live: "https://assignment9b11ph.surge.sh/",
     github: "https://github.com/Souad5/Bill-Management-App",
     techStack: "React, Node.js, MongoDB, Express",
@@ -24,7 +24,7 @@ const projects = [
   {
     id: 3,
     name: "Knowledge Sharing Platform",
-    image: "/Macbook-Air-assignment-11-d2902.web.app.png",
+    image: "/Knowledge Share.png",
     live: "https://assignment-11-d2902.web.app/",
     github: "https://github.com/Souad5/Knowledge-Share",
     techStack: "MERN Stack, JWT Authentication",
@@ -35,7 +35,7 @@ const projects = [
   {
     id: 4,
     name: "Local Food Waste Management",
-    image: "/project4.png",
+    image: "/Local Food.png",
     live: "https://assignment-12-ph-b12.web.app/",
     github: "https://github.com/Souad5/Local-food-management",
     techStack: "React, Node.js, Express, MongoDB",
@@ -46,7 +46,7 @@ const projects = [
   {
   "id": 5,
   "name": "Auctions Gallery",
-  "image": "/Auction.png",
+  "image": "/Auction Bid.png",
   "live": "https://souada11assignment7ph.surge.sh/",
   "github": "https://github.com/Souad5/React-Assignment-7",
   "techStack": "React, Tailwind CSS",
@@ -57,7 +57,7 @@ const projects = [
 {
   "id": 6,
   "name": "English Janala",
-  "image": "/English.png",
+  "image": "/Vocab.png",
   "live": "https://souad5.github.io/English-Janala-A6-PH/",
   "github": "https://github.com/Souad5/English-Janala-A6-PH",
   "techStack": "HTML, Tailwind CSS, JavaScript",
