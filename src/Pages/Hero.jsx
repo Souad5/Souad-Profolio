@@ -5,7 +5,7 @@ import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
 
 const Hero = () => {
   return (
-    <section className="relative h-screen flex items-center justify-center px-6 overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+    <section className="relative px-4 py-18 min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
       {/* Animated Background Blob */}
       <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-600/30 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-500/20 rounded-full blur-3xl animate-ping"></div>
