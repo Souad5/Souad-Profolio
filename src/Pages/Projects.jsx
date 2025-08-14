@@ -1,21 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import projects from "../Data/Projects";
 import ProjectDetails from "./ProjectDetails";
 
 export default function Projects() {
   const [selectedProject, setSelectedProject] = useState(null);
+  const [viewMore, setViewMore] = useState(false);
+  const [displayedProjects, setDisplayedProjects] = useState([]);
+
+  useEffect(() => {
+    setDisplayedProjects(viewMore ? projects : projects.slice(0, 3));
+  }, [viewMore]);
 
   return (
-    <section className=" p-10 bg-gradient-to-br from-gray-900 via-gray-800 to-black ">
+    <section className="p-10 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold mb-10 text-center text-white">
           My Projects
         </h2>
 
         {!selectedProject ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
-            {projects.map((project, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {displayedProjects.map((project, index) => (
               <motion.div
                 key={project.id}
                 className="relative rounded-xl overflow-hidden shadow-2xl cursor-pointer group"
@@ -24,9 +30,9 @@ export default function Projects() {
                 transition={{ delay: index * 0.2 }}
                 onClick={() => setSelectedProject(project)}
               >
-                {/* Gradient border wrapper */}
-                <div className="rounded-xl p-[2px]  bg-linear-to-r/decreasing from-indigo-500 to-teal-400 animate-gradient-border">
-                  {/* Card content */}
+                {/* Animated Gradient Border */}
+                <div className="rounded-xl p-[2px] bg-gradient-to-r from-indigo-500 via-teal-400 to-indigo-500 animate-gradient-border">
+                  {/* Card Content */}
                   <div className="bg-gray-900 rounded-xl p-5 flex flex-col h-full justify-between transform transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl">
                     <img
                       src={project.image}
@@ -51,8 +57,8 @@ export default function Projects() {
                         </span>
                       ))}
                     </div>
-                    <div className="card-actions justify-baseline">
-                      <button className="btn btn-primary bg-linear-to-r/decreasing from-indigo-500 to-teal-400 rounded-xl transition-all duration-300 ">
+                    <div className="card-actions">
+                      <button className="btn btn-primary bg-gradient-to-r from-indigo-500 to-teal-400 rounded-xl transition-all duration-300">
                         View Details
                       </button>
                     </div>
@@ -79,10 +85,25 @@ export default function Projects() {
           }
           .animate-gradient-border {
             background-size: 300% 300%;
-            animation: gradientBorder 2s ease infinite;
+            animation: gradientBorder 3s ease infinite;
           }
         `}
       </style>
+
+      {/* View More Button */}
+      {!selectedProject && (
+        <div className="flex items-center justify-center mt-6">
+          <button
+            onClick={() => {
+              setViewMore((prev) => !prev)
+              if(viewMore) window.scrollTo(0, 1820)
+            }}
+            className="btn btn-primary bg-gradient-to-r from-indigo-500 to-teal-400 rounded-xl transition-all duration-300"
+          >
+            {viewMore ? "View Less" : "View More"}
+          </button>
+        </div>
+      )}
     </section>
   );
 }
