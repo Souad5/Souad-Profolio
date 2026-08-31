@@ -8,7 +8,11 @@ import {
 } from "../../components/admin/States.jsx";
 import ConfirmDialog from "../../components/admin/ConfirmDialog.jsx";
 import { useToast } from "../../lib/toast.jsx";
-import { timeAgo, initials } from "../../lib/utils.js";
+import { AppButton } from "../../components/ui/app-button.jsx";
+import { Card } from "../../components/ui/card.jsx";
+import { Avatar, AvatarFallback } from "../../components/ui/avatar.jsx";
+import { ScrollArea } from "../../components/ui/scroll-area.jsx";
+import { timeAgo, initials, cn } from "../../lib/utils.js";
 import { FaTrash, FaReply } from "react-icons/fa";
 
 export default function MessagesPage() {
@@ -64,90 +68,118 @@ export default function MessagesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Messages</h1>
-          <p className="text-sm opacity-70">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Messages
+          </h1>
+          <p className="text-sm text-muted-foreground">
             {messages.length} total · {data?.unread ?? 0} unread
           </p>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-4">
-        <div className="space-y-2 overflow-y-auto max-h-[70vh]">
-          {messages.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => {
-                setSelected(m);
-                markRead(m);
-              }}
-              className={`w-full text-left p-3 rounded-lg border bg-base-100 flex items-start gap-3 hover:border-primary transition ${
-                !m.read ? "border-primary/60" : "border-base-300"
-              }`}
-            >
-              <div className="avatar placeholder">
-                <div className="bg-primary text-primary-content rounded-full w-9">
-                  <span>{initials(m.name)}</span>
-                </div>
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-medium truncate">
-                    {m.name}
-                    {!m.read && (
-                      <span className="badge badge-xs badge-primary ml-2">
-                        New
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-xs opacity-60 shrink-0">
-                    {timeAgo(m.createdAt)}
-                  </span>
-                </div>
-                <p className="text-xs opacity-70 truncate">{m.email}</p>
-                <p className="text-sm line-clamp-2">{m.message}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <div className="rounded-lg border border-base-300 bg-base-100 p-4 min-h-50">
-          {selected ? (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="font-bold">{selected.name}</span>
-                  <div className="text-sm opacity-70">{selected.email}</div>
-                </div>
-                <button
-                  className="btn btn-ghost btn-sm text-error"
-                  onClick={() => setDeleting(selected)}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-              {selected.subject && (
-                <div className="text-sm font-medium">
-                  Re: {selected.subject}
-                </div>
-              )}
-              <p className="text-sm whitespace-pre-wrap border-t border-base-300 pt-3">
-                {selected.message}
-              </p>
-              <a
-                className="btn btn-primary btn-sm mt-4"
-                href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject || "Your message")}`}
-                target="_blank"
-                rel="noreferrer"
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ScrollArea className="h-[70vh] rounded-xl border border-border bg-card">
+          <div className="space-y-2 p-3">
+            {messages.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => {
+                  setSelected(m);
+                  markRead(m);
+                }}
+                className={cn(
+                  "flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:border-brand-400",
+                  selected?.id === m.id
+                    ? "border-brand-500 bg-brand-50/60 dark:bg-brand-500/10"
+                    : !m.read
+                      ? "border-brand-300/70 bg-card dark:border-brand-500/40"
+                      : "border-border bg-card",
+                )}
               >
-                <FaReply /> Reply
-              </a>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full text-base-400">
-              Select a message
-            </div>
-          )}
-        </div>
+                <Avatar className="size-9 text-xs">
+                  <AvatarFallback
+                    className={
+                      !m.read
+                        ? "font-semibold text-brand-600 dark:text-brand-400"
+                        : "text-muted-foreground"
+                    }
+                  >
+                    {initials(m.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate text-sm font-medium">
+                      {m.name}
+                      {!m.read && (
+                        <span className="ml-2 inline-block rounded-full bg-brand-600/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-600 dark:bg-brand-400/10 dark:text-brand-400">
+                          New
+                        </span>
+                      )}
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {timeAgo(m.createdAt)}
+                    </span>
+                  </div>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {m.email}
+                  </p>
+                  <p className="mt-0.5 line-clamp-2 text-sm">{m.message}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
+
+        <Card className="min-h-[70vh] ring-border">
+          <div className="flex h-full flex-col p-4">
+            {selected ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-foreground">
+                      {selected.name}
+                    </span>
+                    <div className="text-sm text-muted-foreground">
+                      {selected.email}
+                    </div>
+                  </div>
+                  <AppButton
+                    variant="ghost"
+                    size="sm"
+                    className="text-error"
+                    onClick={() => setDeleting(selected)}
+                    aria-label="Delete message"
+                  >
+                    <FaTrash />
+                  </AppButton>
+                </div>
+                {selected.subject && (
+                  <div className="text-sm font-medium text-foreground">
+                    Re: {selected.subject}
+                  </div>
+                )}
+                <p className="whitespace-pre-wrap border-t border-border pt-3 text-sm">
+                  {selected.message}
+                </p>
+                <AppButton size="sm" asChild>
+                  <a
+                    href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject || "Your message")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <FaReply /> Reply
+                  </a>
+                </AppButton>
+              </div>
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground">
+                Select a message
+              </div>
+            )}
+          </div>
+        </Card>
       </div>
 
       <ConfirmDialog

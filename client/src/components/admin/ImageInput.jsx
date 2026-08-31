@@ -1,27 +1,33 @@
-export default function ImageInput({ label, value, onChange, placeholder = "/image.png" }) {
+import { AppInput } from "../ui/app-input.jsx";
+
+export default function ImageInput({
+  label,
+  value,
+  onChange,
+  placeholder = "/image.png",
+}) {
   return (
-    <div className="form-control w-full">
-      <span className="label">
-        <span className="label-text">{label} (image URL)</span>
+    <div className="flex w-full flex-col gap-1.5">
+      <span className="text-sm font-medium text-foreground">
+        {label} (image URL)
       </span>
       <div className="flex items-center gap-3">
-        <div className="avatar">
-          <div className="w-14 h-14 rounded-lg bg-base-200 overflow-hidden">
-            {value ? (
-              <img src={value} alt="preview" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-base-400 text-xs">
-                none
-              </div>
-            )}
-          </div>
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted text-xs text-muted-foreground">
+          {value ? (
+            <img
+              src={value}
+              alt="preview"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <span>none</span>
+          )}
         </div>
-        <input
+        <AppInput
           type="text"
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="input input-bordered w-full"
         />
       </div>
     </div>

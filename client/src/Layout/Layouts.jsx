@@ -21,6 +21,7 @@ const CertificationsPage = lazy(
 const AchievementsPage = lazy(() => import("../Pages/admin/AchievementsPage"));
 const NavigationPage = lazy(() => import("../Pages/admin/NavigationPage"));
 const MessagesPage = lazy(() => import("../Pages/admin/MessagesPage"));
+const PreferencesPage = lazy(() => import("../Pages/admin/PreferencesPage"));
 
 function withSuspense(node) {
   return <Suspense fallback={<AdminFallback />}>{node}</Suspense>;
@@ -67,6 +68,7 @@ const router = createBrowserRouter([
       { path: "achievements", element: withSuspense(<AchievementsPage />) },
       { path: "navigation", element: withSuspense(<NavigationPage />) },
       { path: "messages", element: withSuspense(<MessagesPage />) },
+      { path: "preferences", element: withSuspense(<PreferencesPage />) },
     ],
   },
   {

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Navigate, Link } from "react-router";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { AppButton } from "../../components/ui/app-button.jsx";
+import { AppInput } from "../../components/ui/app-input.jsx";
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
@@ -31,32 +33,26 @@ export default function LoginPage() {
           <h1 className="card-title text-2xl justify-center">Admin Login</h1>
           <p className="text-center text-sm opacity-70 mb-2">Portfolio Content Management System</p>
           <form onSubmit={onSubmit} className="space-y-4">
-            <label className="form-control">
-              <span className="label"><span className="label-text">Email</span></span>
-              <input
-                type="email"
-                className="input input-bordered"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="username"
-              />
-            </label>
-            <label className="form-control">
-              <span className="label"><span className="label-text">Password</span></span>
-              <input
-                type="password"
-                className="input input-bordered"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-              />
-            </label>
+            <AppInput
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="username"
+            />
+            <AppInput
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+            />
             {error && <div className="alert alert-error py-2 text-sm">{error}</div>}
-            <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-              {loading ? <span className="loading loading-spinner loading-xs"></span> : "Sign In"}
-            </button>
+            <AppButton type="submit" className="w-full" loading={loading}>
+              Sign In
+            </AppButton>
           </form>
           <Link to="/" className="link link-primary text-sm text-center pt-2">← Back to portfolio</Link>
         </div>

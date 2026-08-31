@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
+import { AppButton } from "../components/ui/app-button.jsx";
 
 const ToastContext = createContext(null);
 let idSeq = 0;
@@ -40,9 +41,9 @@ export function ToastProvider({ children }) {
             className={`alert shadow-lg ${t.type === "success" ? "alert-success" : t.type === "error" ? "alert-error" : "alert-info"}`}
           >
             <span>{t.message}</span>
-            <button onClick={() => remove(t.id)} className="btn btn-xs btn-ghost">
+            <AppButton variant="ghost" size="sm" onClick={() => remove(t.id)}>
               ✕
-            </button>
+            </AppButton>
           </div>
         ))}
       </div>

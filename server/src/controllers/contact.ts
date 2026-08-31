@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import { ok } from "../utils/handler.js";

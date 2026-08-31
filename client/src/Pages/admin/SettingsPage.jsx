@@ -5,7 +5,16 @@ import { LoadingState, ErrorState } from "../../components/admin/States.jsx";
 import { Field, TextInput, TextArea } from "../../components/admin/FormFields.jsx";
 import ImageInput from "../../components/admin/ImageInput.jsx";
 import { useToast } from "../../lib/toast.jsx";
+import { AppButton } from "../../components/ui/app-button.jsx";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card.jsx";
 import { FaTrash, FaPlus, FaSave } from "react-icons/fa";
+import { cn } from "../../lib/utils.js";
 
 const TABS = [
   { id: "general", label: "General" },
@@ -113,93 +122,116 @@ export default function SettingsPage() {
   if (!form) return null;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Site Settings</h1>
-          <p className="text-sm opacity-70">Changes reflect on the public site instantly</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Site Settings
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Changes reflect on the public site instantly
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="btn btn-primary" onClick={refetch}>Reload</button>
-          <button className="btn btn-primary" onClick={save} disabled={saveMut.isPending}>
+          <AppButton variant="outline" onClick={refetch}>
+            Reload
+          </AppButton>
+          <AppButton onClick={save} disabled={saveMut.isPending}>
             <FaSave /> {saveMut.isPending ? "Saving…" : "Save Changes"}
-          </button>
+          </AppButton>
         </div>
       </div>
 
-      <div role="tablist" className="tabs tabs-boxed flex-wrap">
+      <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-muted/40 p-1">
         {TABS.map((t) => (
-          <button key={t.id} role="tab" className={`tab ${tab === t.id ? "tab-active" : ""}`} onClick={() => setTab(t.id)}>
+          <AppButton
+            key={t.id}
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "flex-1 justify-center",
+              tab === t.id
+                ? "bg-card text-foreground shadow-sm"
+                : "text-ink-muted hover:text-ink",
+            )}
+            onClick={() => setTab(t.id)}
+          >
             {t.label}
-          </button>
+          </AppButton>
         ))}
       </div>
 
       {tab === "general" && (
-        <div className="card bg-base-100 border border-base-300">
-          <div className="card-body gap-4">
-            <h2 className="card-title">Personal Information</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <Field label="Name"><TextInput value={form.name} onChange={(e) => upd("name", e.target.value)} /></Field>
-              <Field label="Professional Title"><TextInput value={form.title} onChange={(e) => upd("title", e.target.value)} /></Field>
-              <Field label="Email"><TextInput type="email" value={form.email} onChange={(e) => upd("email", e.target.value)} /></Field>
-              <Field label="Phone"><TextInput value={form.phone} onChange={(e) => upd("phone", e.target.value)} /></Field>
-              <Field label="Location"><TextInput value={form.location} onChange={(e) => upd("location", e.target.value)} /></Field>
-              <Field label="Availability"><TextInput value={form.availability} onChange={(e) => upd("availability", e.target.value)} /></Field>
-              <Field label="Resume URL"><TextInput value={form.resumeUrl} onChange={(e) => upd("resumeUrl", e.target.value)} placeholder="https://…" /></Field>
+        <Card className="ring-border">
+          <CardHeader>
+            <CardTitle>Personal Information</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <Field label="Name"><TextInput value={form.name} onChange={(e) => upd("name", e.target.value)} /></Field>
+            <Field label="Professional Title"><TextInput value={form.title} onChange={(e) => upd("title", e.target.value)} /></Field>
+            <Field label="Email"><TextInput type="email" value={form.email} onChange={(e) => upd("email", e.target.value)} /></Field>
+            <Field label="Phone"><TextInput value={form.phone} onChange={(e) => upd("phone", e.target.value)} /></Field>
+            <Field label="Location"><TextInput value={form.location} onChange={(e) => upd("location", e.target.value)} /></Field>
+            <Field label="Availability"><TextInput value={form.availability} onChange={(e) => upd("availability", e.target.value)} /></Field>
+            <Field label="Resume URL"><TextInput value={form.resumeUrl} onChange={(e) => upd("resumeUrl", e.target.value)} placeholder="https://…" /></Field>
+            <Field label="Short Bio" className="md:col-span-2"><TextArea rows={3} value={form.shortBio} onChange={(e) => upd("shortBio", e.target.value)} /></Field>
+            <div className="md:col-span-2">
+              <ImageInput label="Profile Image" value={form.profileImage} onChange={(v) => upd("profileImage", v)} />
             </div>
-            <Field label="Short Bio"><TextArea rows={3} value={form.shortBio} onChange={(e) => upd("shortBio", e.target.value)} /></Field>
-            <ImageInput label="Profile Image" value={form.profileImage} onChange={(v) => upd("profileImage", v)} />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {tab === "hero" && (
-        <div className="card bg-base-100 border border-base-300">
-          <div className="card-body gap-4">
-            <h2 className="card-title">Hero Section</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <Field label="Greeting"><TextInput value={form.heroGreeting} onChange={(e) => upd("heroGreeting", e.target.value)} /></Field>
-              <Field label="Highlight (accent name)"><TextInput value={form.heroHighlight} onChange={(e) => upd("heroHighlight", e.target.value)} /></Field>
-              <Field label="Heading (full name)"><TextInput value={form.heroHeading} onChange={(e) => upd("heroHeading", e.target.value)} /></Field>
-              <Field label="Subtitle"><TextInput value={form.heroSubtitle} onChange={(e) => upd("heroSubtitle", e.target.value)} /></Field>
-              <Field label="Primary CTA"><TextInput value={form.heroPrimaryCta} onChange={(e) => upd("heroPrimaryCta", e.target.value)} /></Field>
-              <Field label="Secondary CTA"><TextInput value={form.heroSecondaryCta} onChange={(e) => upd("heroSecondaryCta", e.target.value)} /></Field>
-            </div>
-            <Field label="Description"><TextArea rows={3} value={form.heroDescription} onChange={(e) => upd("heroDescription", e.target.value)} /></Field>
-            <label className="flex items-center justify-between gap-3 cursor-pointer">
-              <span>Enable Hero Section</span>
+        <Card className="ring-border">
+          <CardHeader>
+            <CardTitle>Hero Section</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <Field label="Greeting"><TextInput value={form.heroGreeting} onChange={(e) => upd("heroGreeting", e.target.value)} /></Field>
+            <Field label="Highlight (accent name)"><TextInput value={form.heroHighlight} onChange={(e) => upd("heroHighlight", e.target.value)} /></Field>
+            <Field label="Heading (full name)"><TextInput value={form.heroHeading} onChange={(e) => upd("heroHeading", e.target.value)} /></Field>
+            <Field label="Subtitle"><TextInput value={form.heroSubtitle} onChange={(e) => upd("heroSubtitle", e.target.value)} /></Field>
+            <Field label="Primary CTA"><TextInput value={form.heroPrimaryCta} onChange={(e) => upd("heroPrimaryCta", e.target.value)} /></Field>
+            <Field label="Secondary CTA"><TextInput value={form.heroSecondaryCta} onChange={(e) => upd("heroSecondaryCta", e.target.value)} /></Field>
+            <Field label="Description" className="md:col-span-2"><TextArea rows={3} value={form.heroDescription} onChange={(e) => upd("heroDescription", e.target.value)} /></Field>
+            <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+              <span className="text-sm font-medium">Enable Hero Section</span>
               <input type="checkbox" className="toggle toggle-primary" checked={!!form.heroEnabled} onChange={(e) => upd("heroEnabled", e.target.checked)} />
-            </label>
-          </div>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {tab === "seo" && (
-        <div className="card bg-base-100 border border-base-300">
-          <div className="card-body gap-4">
-            <h2 className="card-title">SEO Settings</h2>
-            <p className="text-xs opacity-70">This is a client-rendered SPA; the SEO values below are applied as meta tags at runtime. For full static SEO, server-side rendering would be required.</p>
+        <Card className="ring-border">
+          <CardHeader>
+            <CardTitle>SEO Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-muted-foreground">
+              This is a client-rendered SPA; the SEO values below are applied as meta tags at runtime. For full static SEO, server-side rendering would be required.
+            </p>
             <Field label="Title"><TextInput value={form.seoTitle} onChange={(e) => upd("seoTitle", e.target.value)} /></Field>
             <Field label="Description"><TextArea rows={2} value={form.seoDescription} onChange={(e) => upd("seoDescription", e.target.value)} /></Field>
             <Field label="Keywords"><TextInput value={form.seoKeywords} onChange={(e) => upd("seoKeywords", e.target.value)} /></Field>
             <Field label="Author"><TextInput value={form.seoAuthor} onChange={(e) => upd("seoAuthor", e.target.value)} /></Field>
             <Field label="Canonical URL"><TextInput value={form.seoCanonicalUrl} onChange={(e) => upd("seoCanonicalUrl", e.target.value)} placeholder="https://…" /></Field>
             <ImageInput label="Open Graph Image" value={form.seoOgImage} onChange={(v) => upd("seoOgImage", v)} />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {tab === "social" && (
-        <div className="card bg-base-100 border border-base-300">
-          <div className="card-body gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="card-title">Social Links</h2>
-              <button className="btn btn-primary btn-sm" onClick={addSocial}><FaPlus /> Add</button>
-            </div>
+        <Card className="ring-border">
+          <CardHeader className="flex-row items-center justify-between">
+            <CardTitle>Social Links</CardTitle>
+            <AppButton size="sm" onClick={addSocial}><FaPlus /> Add</AppButton>
+          </CardHeader>
+          <CardContent className="space-y-3">
             {socials.map((s) => (
-              <div key={s.id} className="flex flex-col sm:flex-row gap-2 items-end border border-base-300 rounded-lg p-3">
-                <div className="grid sm:grid-cols-2 gap-2 flex-1">
+              <div key={s.id} className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-end">
+                <div className="grid flex-1 gap-2 sm:grid-cols-2">
                   <Field label="Label"><TextInput value={s.label} onChange={(e) => updateSocial(s, { label: e.target.value })} /></Field>
                   <Field label="URL"><TextInput value={s.url} onChange={(e) => updateSocial(s, { url: e.target.value })} /></Field>
                   <Field label="Icon"><TextInput value={s.icon} onChange={(e) => updateSocial(s, { icon: e.target.value })} hint="react-icons name" /></Field>
@@ -207,30 +239,34 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex items-center gap-2 pb-1">
                   <label className="label cursor-pointer"><input type="checkbox" className="toggle toggle-sm toggle-primary" checked={!!s.enabled} onChange={(e) => updateSocial(s, { enabled: e.target.checked })} /></label>
-                  <button className="btn btn-ghost btn-sm text-error" onClick={() => removeSocial(s)}><FaTrash /></button>
+                  <AppButton variant="ghost" size="sm" className="text-error hover:text-error dark:hover:text-red-400" onClick={() => removeSocial(s)} aria-label={`Remove ${s.label || "link"}`}><FaTrash /></AppButton>
                 </div>
               </div>
             ))}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {tab === "sections" && (
-        <div className="card bg-base-100 border border-base-300">
-          <div className="card-body gap-3">
-            <h2 className="card-title">Section Visibility</h2>
-            <p className="text-xs opacity-70">Toggle which sections render on the public portfolio</p>
+        <Card className="ring-border">
+          <CardHeader>
+            <CardTitle>Section Visibility</CardTitle>
+            <CardDescription>
+              Toggle which sections render on the public portfolio
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
             {sections.map((s) => (
-              <div key={s.id} className="flex items-center justify-between border border-base-300 rounded-lg p-3">
+              <div key={s.id} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                 <div>
-                  <span className="font-medium">{s.label}</span>
-                  <span className="text-xs opacity-60 ml-2">order: {s.order}</span>
+                  <span className="text-sm font-medium">{s.label}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">order: {s.order}</span>
                 </div>
                 <input type="checkbox" className="toggle toggle-primary" checked={!!s.enabled} onChange={() => toggleSection(s)} />
               </div>
             ))}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

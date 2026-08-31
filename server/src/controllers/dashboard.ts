@@ -38,6 +38,26 @@ export async function getStats(_req: Request, res: Response) {
     take: 5,
   });
 
+  // Distributions for the admin dashboard charts.
+  const allProjects = await prisma.project.findMany({
+    select: { category: true, published: true, featured: true },
+  });
+
+  const projectsByCategoryMap = new Map<string, number>();
+  for (const p of allProjects) {
+    const key = p.category?.trim() || "Uncategorized";
+    projectsByCategoryMap.set(key, (projectsByCategoryMap.get(key) ?? 0) + 1);
+  }
+  const projectsByCategory = [...projectsByCategoryMap.entries()]
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const publishedCount = allProjects.filter((p) => p.published).length;
+  const draftCount = allProjects.length - publishedCount;
+  const featuredCount = allProjects.filter(
+    (p) => p.published && p.featured,
+  ).length;
+
   return ok(res, {
     stats: {
       projects,
@@ -52,6 +72,21 @@ export async function getStats(_req: Request, res: Response) {
       achievements,
       unreadMessages,
       totalMessages,
+    },
+    charts: {
+      projectsByCategory,
+      projectsByStatus: [
+        { name: "Published", value: publishedCount },
+        { name: "Draft", value: draftCount },
+      ],
+      projectsFeatured: [
+        { name: "Featured", value: featuredCount },
+        { name: "Standard", value: publishedCount - featuredCount },
+      ],
+      messagesRead: {
+        read: totalMessages - unreadMessages,
+        unread: unreadMessages,
+      },
     },
     visibility,
     recentMessages,

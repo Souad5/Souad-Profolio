@@ -4,6 +4,9 @@ import emailjs from "@emailjs/browser";
 import { useSiteSettings } from "../../../hooks/usePortfolio.js";
 import { submitContact } from "../../../api/endpoints.js";
 import { Section, SectionHeading } from "./Section.jsx";
+import { AppButton } from "../../ui/app-button.jsx";
+import { AppInput } from "../../ui/app-input.jsx";
+import { AppTextarea } from "../../ui/app-textarea.jsx";
 import Icon from "../../ui/Icon.jsx";
 import { FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 
@@ -101,23 +104,18 @@ export default function Contact() {
           className="space-y-4"
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block">
-              <span className="mb-1 block text-sm font-medium">Name</span>
-              <input required value={form.name} onChange={upd("name")} className="w-full rounded-lg border border-slate-300 bg-surface px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900" />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-sm font-medium">Email</span>
-              <input required type="email" value={form.email} onChange={upd("email")} className="w-full rounded-lg border border-slate-300 bg-surface px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900" />
-            </label>
+            <AppInput label="Name" required value={form.name} onChange={upd("name")} />
+            <AppInput label="Email" type="email" required value={form.email} onChange={upd("email")} />
           </div>
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium">Subject</span>
-            <input value={form.subject} onChange={upd("subject")} className="w-full rounded-lg border border-slate-300 bg-surface px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900" />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium">Message</span>
-            <textarea required rows="5" value={form.message} onChange={upd("message")} className="w-full resize-none rounded-lg border border-slate-300 bg-surface px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900" />
-          </label>
+          <AppInput label="Subject" value={form.subject} onChange={upd("subject")} />
+          <AppTextarea
+            label="Message"
+            required
+            placeholder="Tell me about your project..."
+            rows="5"
+            value={form.message}
+            onChange={upd("message")}
+          />
 
           {status === "sent" && (
             <div className="rounded-lg bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400">
@@ -130,13 +128,13 @@ export default function Contact() {
             </div>
           )}
 
-          <button
+          <AppButton
             type="submit"
-            disabled={status === "sending"}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
+            loading={status === "sending"}
+            className="w-full sm:w-auto"
           >
             {status === "sending" ? "Sending…" : "Send Message"}
-          </button>
+          </AppButton>
         </motion.form>
       </div>
     </Section>

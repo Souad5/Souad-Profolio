@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useNavigation, useSiteSettings } from "../../hooks/usePortfolio.js";
 import Icon from "../ui/Icon.jsx";
 import { useTheme } from "../../context/ThemeContext.jsx";
+import { AppButton } from "../ui/app-button.jsx";
 import { FaBars, FaTimes, FaSun, FaMoon } from "react-icons/fa";
 
 export default function Navbar() {
@@ -48,31 +49,38 @@ export default function Navbar() {
             </span>
           )}
 
-          <button
+          <AppButton
+            variant="ghost"
+            size="icon-sm"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="rounded-lg p-2 text-ink-muted hover:bg-slate-100 hover:text-ink dark:text-slate-300 dark:hover:bg-slate-800"
             aria-label="Toggle color theme"
           >
             {theme === "dark" ? <FaSun /> : <FaMoon />}
-          </button>
+          </AppButton>
 
-          <a
-            href={settings?.resumeUrl || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 sm:inline-flex"
+          <AppButton
+            asChild
+            className="hidden sm:inline-flex"
           >
-            Resume
-          </a>
+            <a
+              href={settings?.resumeUrl || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Resume
+            </a>
+          </AppButton>
 
-          <button
-            className="rounded-lg p-2 text-ink-muted hover:bg-slate-100 md:hidden dark:hover:bg-slate-800"
+          <AppButton
+            variant="ghost"
+            size="icon-sm"
+            className="md:hidden"
             onClick={() => setOpen((o) => !o)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
             {open ? <FaTimes /> : <FaBars />}
-          </button>
+          </AppButton>
         </div>
       </nav>
 

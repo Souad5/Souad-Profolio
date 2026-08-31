@@ -9,6 +9,7 @@ export const validate =
   (req: Request, _res: Response, next: NextFunction) => {
     try {
       const parsed = schema.parse(req[loc]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (req as any)[loc] = parsed;
       next();
     } catch (err) {

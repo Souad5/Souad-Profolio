@@ -7,6 +7,10 @@ import { env } from "./config/env.js";
 import api from "./routes/public.js";
 import { errorHandler, notFound } from "./middleware/error.js";
 
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled promise rejection:", reason);
+});
+
 const app = express();
 
 app.use(helmet());

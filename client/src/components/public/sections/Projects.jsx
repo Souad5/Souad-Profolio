@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useProjects } from "../../../hooks/usePortfolio.js";
 import { Section, SectionHeading } from "./Section.jsx";
+import { AppButton } from "../../ui/app-button.jsx";
 import Icon from "../../ui/Icon.jsx";
 import { FaGithub, FaExternalLinkAlt, FaTimes } from "react-icons/fa";
 
@@ -11,9 +12,9 @@ function ProjectDetailModal({ project, onClose }) {
       <div className="my-8 w-full max-w-2xl rounded-2xl bg-surface p-6 shadow-2xl dark:bg-slate-900" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-start justify-between">
           <h3 className="font-display text-2xl font-bold">{project.title}</h3>
-          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800">
+          <AppButton onClick={onClose} variant="ghost" size="icon-sm" aria-label="Close">
             <FaTimes />
-          </button>
+          </AppButton>
         </div>
         {project.thumbnail && (
           <img src={project.thumbnail} alt={project.title} className="mb-4 aspect-video w-full rounded-xl object-cover" />
@@ -45,14 +46,18 @@ function ProjectDetailModal({ project, onClose }) {
 
         <div className="mt-6 flex gap-3">
           {project.liveUrl && (
-            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700">
-              <FaExternalLinkAlt /> Live
-            </a>
+            <AppButton asChild>
+              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                <FaExternalLinkAlt /> Live
+              </a>
+            </AppButton>
           )}
           {project.githubUrl && (
-            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
-              <FaGithub /> Code
-            </a>
+            <AppButton asChild variant="outline">
+              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                <FaGithub /> Code
+              </a>
+            </AppButton>
           )}
         </div>
       </div>
@@ -79,7 +84,12 @@ export default function Projects() {
             transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
             className="group overflow-hidden rounded-2xl border border-slate-200 bg-surface shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
           >
-            <button onClick={() => setSelected(p)} className="w-full text-left" aria-label={`View ${p.title} details`}>
+            <AppButton
+              variant="ghost"
+              className="h-auto w-full justify-start p-0 text-left font-normal hover:bg-transparent"
+              onClick={() => setSelected(p)}
+              aria-label={`View ${p.title} details`}
+            >
               <div className="relative aspect-video overflow-hidden bg-slate-100 dark:bg-slate-800">
                 {p.thumbnail ? (
                   <img src={p.thumbnail} alt={p.title} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
@@ -98,7 +108,7 @@ export default function Projects() {
                   ))}
                 </div>
               </div>
-            </button>
+            </AppButton>
           </motion.article>
         ))}
       </div>

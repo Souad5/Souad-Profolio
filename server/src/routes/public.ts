@@ -32,7 +32,7 @@ import {
   deleteMessage,
 } from "../controllers/contact.js";
 import { getStats } from "../controllers/dashboard.js";
-import { ok } from "../utils/handler.js";
+import { ok, asyncHandler } from "../utils/handler.js";
 import {
   skillCat,
   skill,
@@ -55,8 +55,8 @@ const api = Router();
 /* Public endpoints (no auth)                                          */
 /* ------------------------------------------------------------------ */
 
-api.get("/site-settings", getSettings);
-api.get("/seo", async (_req, res) => {
+api.get("/site-settings", asyncHandler(getSettings));
+api.get("/seo", asyncHandler(async (_req, res) => {
   const s = await prisma.siteSetting.findFirst();
   return ok(res, {
     title: s?.seoTitle ?? "",
@@ -66,89 +66,89 @@ api.get("/seo", async (_req, res) => {
     author: s?.seoAuthor ?? "",
     canonicalUrl: s?.seoCanonicalUrl ?? "",
   });
-});
-api.get("/navigation", async (_req, res) => {
+}));
+api.get("/navigation", asyncHandler(async (_req, res) => {
   const items = await prisma.navigationItem.findMany({
     where: { enabled: true },
     orderBy: { order: "asc" },
   });
   return ok(res, items);
-});
-api.get("/sections", async (_req, res) => {
+}));
+api.get("/sections", asyncHandler(async (_req, res) => {
   const items = await prisma.sectionVisibility.findMany({
     orderBy: { order: "asc" },
   });
   return ok(res, items);
-});
-api.get("/about", async (_req, res) => {
+}));
+api.get("/about", asyncHandler(async (_req, res) => {
   const item = await prisma.about.findFirst({
     where: { enabled: true },
     orderBy: { order: "asc" },
   });
   return ok(res, item);
-});
-api.get("/skills", async (_req, res) => {
+}));
+api.get("/skills", asyncHandler(async (_req, res) => {
   const cats = await prisma.skillCategory.findMany({
     where: { enabled: true },
     orderBy: { order: "asc" },
     include: { skills: { where: { enabled: true }, orderBy: { order: "asc" } } },
   });
   return ok(res, cats);
-});
-api.get("/experience", async (_req, res) => {
+}));
+api.get("/experience", asyncHandler(async (_req, res) => {
   const items = await prisma.experience.findMany({
     where: { enabled: true },
     orderBy: [{ current: "desc" }, { order: "asc" }],
   });
   return ok(res, items);
-});
-api.get("/education", async (_req, res) => {
+}));
+api.get("/education", asyncHandler(async (_req, res) => {
   const items = await prisma.education.findMany({
     where: { enabled: true },
     orderBy: { order: "asc" },
   });
   return ok(res, items);
-});
-api.get("/projects", async (req, res) => {
+}));
+api.get("/projects", asyncHandler(async (req, res) => {
   req.query = { ...req.query, published: "true" };
   return listProjects(req, res);
-});
-api.get("/projects/:slug", getProjectBySlug);
-api.get("/services", async (_req, res) => {
+}));
+api.get("/projects/:slug", asyncHandler(getProjectBySlug));
+api.get("/services", asyncHandler(async (_req, res) => {
   const items = await prisma.service.findMany({
     where: { enabled: true },
     orderBy: { order: "asc" },
   });
   return ok(res, items);
-});
-api.get("/testimonials", async (_req, res) => {
+}));
+api.get("/testimonials", asyncHandler(async (_req, res) => {
   const items = await prisma.testimonial.findMany({
     where: { enabled: true },
     orderBy: [{ featured: "desc" }, { order: "asc" }],
   });
   return ok(res, items);
-});
-api.get("/certifications", async (_req, res) => {
+}));
+api.get("/certifications", asyncHandler(async (_req, res) => {
   const items = await prisma.certification.findMany({
     where: { enabled: true },
     orderBy: { order: "asc" },
   });
   return ok(res, items);
-});
-api.get("/achievements", async (_req, res) => {
+}));
+api.get("/achievements", asyncHandler(async (_req, res) => {
   const items = await prisma.achievement.findMany({
     where: { enabled: true },
     orderBy: { order: "asc" },
   });
   return ok(res, items);
-});
-api.post("/contact", validate(contactMessageSchema), createContactMessage);
+}));
+api.post("/contact", validate(contactMessageSchema), asyncHandler(createContactMessage));
 
 /* ------------------------------------------------------------------ */
 /* Auth                                                               */
 /* ------------------------------------------------------------------ */
-api.post("/auth/login", validate(loginSchema), login);
-api.get("/auth/me", requireAuth, me);
+api.post("/auth/login", validate(loginSchema), asyncHandler(login));
+api.get("/auth/me", requireAuth, asyncHandler(me));
 
 /* ------------------------------------------------------------------ */
 /* Admin endpoints (protected)                                         */
@@ -156,20 +156,20 @@ api.get("/auth/me", requireAuth, me);
 const admin = Router();
 admin.use(requireAuth);
 
-admin.get("/stats", getStats);
+admin.get("/stats", asyncHandler(getStats));
 
-admin.get("/site-settings", getSettings);
-admin.put("/site-settings", validate(siteSettingsSchema.partial()), updateSettings);
-admin.post("/social-links", validate(socialLinkSchema), addSocialLink);
-admin.put("/social-links/:id", validate(socialLinkSchema.partial()), updateSocialLink);
-admin.delete("/social-links/:id", deleteSocialLink);
+admin.get("/site-settings", asyncHandler(getSettings));
+admin.put("/site-settings", validate(siteSettingsSchema.partial()), asyncHandler(updateSettings));
+admin.post("/social-links", validate(socialLinkSchema), asyncHandler(addSocialLink));
+admin.put("/social-links/:id", validate(socialLinkSchema.partial()), asyncHandler(updateSocialLink));
+admin.delete("/social-links/:id", asyncHandler(deleteSocialLink));
 
-admin.get("/projects", listProjects);
-admin.get("/projects/:id", getProjectById);
-admin.post("/projects", createProject);
-admin.post("/projects/:id/duplicate", duplicateProject);
-admin.put("/projects/:id", updateProject);
-admin.delete("/projects/:id", deleteProject);
+admin.get("/projects", asyncHandler(listProjects));
+admin.get("/projects/:id", asyncHandler(getProjectById));
+admin.post("/projects", asyncHandler(createProject));
+admin.post("/projects/:id/duplicate", asyncHandler(duplicateProject));
+admin.put("/projects/:id", asyncHandler(updateProject));
+admin.delete("/projects/:id", asyncHandler(deleteProject));
 admin.use("/skills", crudRoutes("skills", skill));
 admin.use("/skill-categories", crudRoutes("skill-categories", skillCat));
 admin.use("/experience", crudRoutes("experience", experience));
@@ -183,9 +183,9 @@ admin.use("/about", crudRoutes("about", about));
 admin.use("/sections", crudRoutes("sections", visibility));
 admin.use("/media", crudRoutes("media", media));
 
-admin.get("/contact-messages", listMessages);
-admin.patch("/contact-messages/:id/read", markRead);
-admin.delete("/contact-messages/:id", deleteMessage);
+admin.get("/contact-messages", asyncHandler(listMessages));
+admin.patch("/contact-messages/:id/read", asyncHandler(markRead));
+admin.delete("/contact-messages/:id", asyncHandler(deleteMessage));
 
 api.use("/admin", admin);
 

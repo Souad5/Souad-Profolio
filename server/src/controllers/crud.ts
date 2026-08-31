@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Request, Response } from "express";
 import type { PrismaClient } from "@prisma/client";
 import { ApiError } from "../utils/ApiError.js";
@@ -19,18 +20,35 @@ interface CrudOptions {
   preprocess?: (data: any) => any;
 }
 
-export function crudController(delegate: PrismaDelegate, options: CrudOptions = {}) {
-  const { searchFields = [], defaultOrderBy = { order: "asc" }, include, preprocess } = options;
+export function crudController(
+  delegate: PrismaDelegate,
+  options: CrudOptions = {},
+) {
+  const {
+    searchFields = [],
+    defaultOrderBy = { order: "asc" },
+    include,
+    preprocess,
+  } = options;
 
   const list = async (req: Request, res: Response) => {
-    const { page = "1", limit = "500", search, enabled, published, featured } = req.query as Record<string, any>;
+    const {
+      page = "1",
+      limit = "500",
+      search,
+      enabled,
+      published,
+      featured,
+    } = req.query as Record<string, any>;
 
     const where: any = {};
     if (enabled !== undefined) where.enabled = enabled === "true";
     if (published !== undefined) where.published = published === "true";
     if (featured !== undefined) where.featured = featured === "true";
     if (search && searchFields.length) {
-      where.OR = searchFields.map((f) => ({ [f]: { contains: search, mode: "insensitive" } }));
+      where.OR = searchFields.map((f) => ({
+        [f]: { contains: search, mode: "insensitive" },
+      }));
     }
 
     const pageNum = Math.max(1, parseInt(page, 10) || 1);

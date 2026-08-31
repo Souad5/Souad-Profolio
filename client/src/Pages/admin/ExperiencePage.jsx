@@ -38,12 +38,30 @@ export default function ExperiencePage() {
         { name: "location", label: "Location", placeholder: "Remote / City" },
         { name: "startDate", label: "Start Date", type: "date" },
         { name: "endDate", label: "End Date", type: "date" },
-        { name: "current", label: "Current Position", type: "boolean" },
+        {
+          name: "current",
+          label: "Current Position",
+          type: "radio",
+          default: false,
+          options: [
+            { value: true, label: "Current", description: "I still work here" },
+            { value: false, label: "Past", description: "This role has ended" },
+          ],
+        },
         { name: "description", label: "Description", type: "textarea", rows: 4 },
         { name: "technologies", label: "Technologies", type: "tags", hint: "One per line" },
         { name: "logo", label: "Company Logo URL", type: "image" },
         { name: "order", label: "Order", type: "number" },
-        { name: "enabled", label: "Enabled", type: "boolean" },
+        {
+          name: "enabled",
+          label: "Visibility",
+          type: "radio",
+          default: false,
+          options: [
+            { value: true, label: "Published", description: "Visible on the site" },
+            { value: false, label: "Hidden", description: "Not shown publicly" },
+          ],
+        },
       ]}
       emptyMessage="No experience yet"
     />

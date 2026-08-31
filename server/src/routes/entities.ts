@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../config/prisma.js";
 import { crudController } from "../controllers/crud.js";
+import { asyncHandler } from "../utils/handler.js";
 
 // Generic CRUD controllers (admin)
 const skillCat = crudController(prisma.skillCategory);
@@ -9,8 +10,27 @@ const skill = crudController(prisma.skill, {
   defaultOrderBy: { order: "asc" },
   include: { category: true },
 });
+
+// The admin date inputs post values like "2025-12-01" (date-only), but Prisma
+// DateTime fields require a full ISO-8601 timestamp. Coerce YYYY-MM-DD into a
+// valid datetime before it reaches Prisma.
+const toDateTime = (value: unknown): unknown => {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return new Date(`${value}T00:00:00.000Z`).toISOString();
+  }
+  return value;
+};
+
 const experience = crudController(prisma.experience, {
   defaultOrderBy: [{ current: "desc" }, { order: "asc" }],
+  preprocess: (data) => ({
+    ...data,
+    startDate: toDateTime(data.startDate),
+    endDate:
+      data.endDate == null || data.endDate === ""
+        ? null
+        : toDateTime(data.endDate),
+  }),
 });
 const education = crudController(prisma.education, { defaultOrderBy: { order: "asc" } });
 const service = crudController(prisma.service, { defaultOrderBy: { order: "asc" } });
@@ -27,11 +47,11 @@ const media = crudController(prisma.mediaAsset, { defaultOrderBy: { createdAt: "
 // Builds a router of protected CRUD routes for an entity
 function crudRoutes(path: string, ctrl: ReturnType<typeof crudController>, singular = "id") {
   const router = Router();
-  router.get("/", ctrl.list);
-  router.get(`/:${singular}`, ctrl.getById);
-  router.post("/", ctrl.create);
-  router.put(`/:${singular}`, ctrl.update);
-  router.delete(`/:${singular}`, ctrl.remove);
+  router.get("/", asyncHandler(ctrl.list));
+  router.get(`/:${singular}`, asyncHandler(ctrl.getById));
+  router.post("/", asyncHandler(ctrl.create));
+  router.put(`/:${singular}`, asyncHandler(ctrl.update));
+  router.delete(`/:${singular}`, asyncHandler(ctrl.remove));
   return router;
 }
 

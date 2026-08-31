@@ -112,7 +112,7 @@ async function main() {
   const sections = [
     { key: "about", label: "About", enabled: true, order: 0 },
     { key: "skills", label: "Skills", enabled: true, order: 1 },
-    { key: "experience", label: "Experience", enabled: false, order: 2 },
+    { key: "experience", label: "Experience", enabled: true, order: 2 },
     { key: "education", label: "Education", enabled: true, order: 3 },
     { key: "projects", label: "Projects", enabled: true, order: 4 },
     { key: "services", label: "Services", enabled: false, order: 5 },

@@ -9,6 +9,35 @@
       content="Eta8MRoG5AJaEA25VwnjqGLZnwKFvrTL-WiZJ85Evkc"
     />
     <title>Souad. || MERN Developer</title>
+    <script>
+      // Apply admin UI display preferences (theme + font size) before React
+      // mounts to avoid a flash of the default theme/size. Scoped to /admin so
+      // the public site's own theme is never touched.
+      (function () {
+        try {
+          var prefs = JSON.parse(
+            localStorage.getItem("admin:preferences") || "{}",
+          );
+          var theme = prefs.theme || "system";
+          var dark =
+            theme === "dark" ||
+            (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          var root = document.documentElement;
+          if (window.location.pathname.indexOf("/admin") === 0) {
+            root.setAttribute(
+              "data-admin-theme",
+              dark ? "dark" : "light",
+            );
+            root.setAttribute(
+              "data-admin-font-scale",
+              prefs.fontScale || "md",
+            );
+          }
+        } catch (e) {
+          /* ignore — fall back to defaults */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

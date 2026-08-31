@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextFunction, Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -31,7 +32,13 @@ async function uniqueSlug(title: string, excludeId?: number) {
 }
 
 export async function listProjects(req: Request, res: Response) {
-  const { page = "1", limit = "500", search, published, featured } = req.query as Record<string, any>;
+  const {
+    page = "1",
+    limit = "500",
+    search,
+    published,
+    featured,
+  } = req.query as Record<string, any>;
   const where: any = {};
   if (published !== undefined) where.published = published === "true";
   if (featured !== undefined) where.featured = featured === "true";
@@ -46,7 +53,12 @@ export async function listProjects(req: Request, res: Response) {
   const skip = (pageNum - 1) * limitNum;
 
   const [items, total] = await Promise.all([
-    prisma.project.findMany({ where, skip, take: limitNum, orderBy: [{ featured: "desc" }, { order: "asc" }] }),
+    prisma.project.findMany({
+      where,
+      skip,
+      take: limitNum,
+      orderBy: [{ featured: "desc" }, { order: "asc" }],
+    }),
     prisma.project.count({ where }),
   ]);
   return ok(res, { items, total, page: pageNum, limit: limitNum });
@@ -98,14 +110,28 @@ export async function deleteProject(req: Request, res: Response) {
   return ok(res, { id });
 }
 
-export async function duplicateProject(req: Request, res: Response, _next: NextFunction) {
+export async function duplicateProject(
+  req: Request,
+  res: Response,
+  _next: NextFunction,
+) {
   const id = Number(req.params.id);
   const source = await prisma.project.findUnique({ where: { id } });
   if (!source) throw new ApiError(404, "Project not found");
 
-  const { id: _oldId, createdAt: _c, updatedAt: _u, slug: _slug, ...rest } = source as any;
+  const {
+    id: _oldId,
+    createdAt: _c,
+    updatedAt: _u,
+    slug: _slug,
+    ...rest
+  } = source as any;
   const item = await prisma.project.create({
-    data: { ...rest, title: `${rest.title} (Copy)`, slug: await uniqueSlug(`${rest.title} Copy`) },
+    data: {
+      ...rest,
+      title: `${rest.title} (Copy)`,
+      slug: await uniqueSlug(`${rest.title} Copy`),
+    },
   });
   return created(res, item);
 }

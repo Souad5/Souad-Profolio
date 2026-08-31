@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useSiteSettings } from "../../../hooks/usePortfolio.js";
 import Icon from "../../ui/Icon.jsx";
+import { AppButton } from "../../ui/app-button.jsx";
 import { Section } from "./Section.jsx";
 
 const fadeUp = {
@@ -76,21 +77,21 @@ export default function Hero() {
 
           <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-3">
             {s?.resumeUrl && (
-              <a
-                href={s.resumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700"
-              >
-                {s.heroPrimaryCta || "Resume"}
-              </a>
+              <AppButton asChild>
+                <a
+                  href={s.resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {s.heroPrimaryCta || "Resume"}
+                </a>
+              </AppButton>
             )}
-            <a
-              href="#contact"
-              className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              {s?.heroSecondaryCta || "Contact"}
-            </a>
+            <AppButton asChild variant="outline">
+              <a href="#contact">
+                {s?.heroSecondaryCta || "Contact"}
+              </a>
+            </AppButton>
           </motion.div>
 
           {s?.socialLinks?.length > 0 && (
