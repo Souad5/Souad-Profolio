@@ -39,15 +39,13 @@ export default function AdminLayout() {
       <TooltipProvider>
         <SidebarProvider
           open={!prefs.sidebarCollapsed}
-          onOpenChange={(open) =>
-            update({ sidebarCollapsed: open === false })
-          }
+          onOpenChange={(open) => update({ sidebarCollapsed: open === false })}
         >
           <AdminSidebar />
           <SidebarInset>
             <AdminHeader />
             <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-              <div className="mx-auto w-full max-w-6xl space-y-6">
+              <div className="mx-auto w-full max-w-7xl space-y-6">
                 <Outlet />
               </div>
             </main>

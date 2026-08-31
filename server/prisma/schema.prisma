@@ -44,6 +44,7 @@ model SiteSetting {
   heroPrimaryCta  String   @default("Download Resume")
   heroSecondaryCta String  @default("Contact Me")
   heroEnabled     Boolean  @default(true)
+  heroTags        Json     @default("[]") // string[] shown in the top marquee strip
   // SEO
   seoTitle        String   @default("Souad || MERN Developer")
   seoDescription  String   @default("")

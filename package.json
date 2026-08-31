@@ -27,5 +27,10 @@
     "prisma@6.19.3": true,
     "@prisma/engines@6.19.3": true,
     "esbuild@0.28.2": true
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "motion": "^13.1.1",
+    "tailwind-merge": "^3.6.0"
   }
 }

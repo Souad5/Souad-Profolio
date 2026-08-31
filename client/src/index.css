@@ -253,6 +253,18 @@ img {
 
 /* Reusable semantic classes (usable directly in className) */
 @layer components {
+  /* Marquee scroll animation */
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
   /* Text color helpers */
   .text-dim {
     @apply text-ink-muted dark:text-slate-400;

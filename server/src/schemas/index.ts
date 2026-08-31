@@ -30,6 +30,7 @@ export const siteSettingsSchema = z.object({
   heroPrimaryCta: z.string().optional(),
   heroSecondaryCta: z.string().optional(),
   heroEnabled: z.boolean().optional(),
+  heroTags: stringArray.optional(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   seoKeywords: z.string().optional(),

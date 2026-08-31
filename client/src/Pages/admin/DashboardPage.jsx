@@ -79,15 +79,33 @@ function fade(delay = 0) {
   };
 }
 
-function KpiStat({ label, value, icon, sub, to, accent }) {
+function KpiStat({ label, value, icon, sub, to, color = "brand" }) {
+  const palette = {
+    brand: {
+      border: "border-l-brand-500",
+      icon: "bg-brand-500/10 text-brand-600 dark:text-brand-400",
+    },
+    sky: {
+      border: "border-l-sky-500",
+      icon: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
+    },
+    amber: {
+      border: "border-l-amber-500",
+      icon: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    },
+    violet: {
+      border: "border-l-violet-500",
+      icon: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+    },
+  }[color];
+
   const inner = (
-    <CardShell className="group h-full">
+    <CardShell className={cn("group h-full overflow-hidden border-l-4", palette.border)}>
       <CardContent className="flex items-start gap-4 p-5">
         <span
           className={cn(
             "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
-            accent ??
-              "bg-brand-500/10 text-brand-600 dark:text-brand-400",
+            palette.icon,
           )}
         >
           <Icon name={icon} className="h-5 w-5" />
@@ -235,6 +253,7 @@ export default function DashboardPage() {
             sub={`${s.featuredProjects ?? 0} featured`}
             icon="FaProjectDiagram"
             to="/admin/projects"
+            color="brand"
           />
           <KpiStat
             label="Skills"
@@ -242,6 +261,7 @@ export default function DashboardPage() {
             sub={`${s.skillCategories ?? 0} categories`}
             icon="FaCode"
             to="/admin/skills"
+            color="sky"
           />
           <KpiStat
             label="Unread messages"
@@ -253,11 +273,7 @@ export default function DashboardPage() {
             }
             icon="FaEnvelope"
             to="/admin/messages"
-            accent={
-              unread > 0
-                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                : "bg-brand-500/10 text-brand-600 dark:text-brand-400"
-            }
+            color={unread > 0 ? "amber" : "brand"}
           />
           <KpiStat
             label="Testimonials"
@@ -265,6 +281,7 @@ export default function DashboardPage() {
             sub={s.testimonials > 0 ? "From happy clients" : "Add a review"}
             icon="FaStar"
             to="/admin/testimonials"
+            color="violet"
           />
         </div>
       </M>

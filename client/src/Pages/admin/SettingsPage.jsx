@@ -16,6 +16,68 @@ import {
 import { FaTrash, FaPlus, FaSave } from "react-icons/fa";
 import { cn } from "../../lib/utils.js";
 
+function TagEditor({ value = [], onChange }) {
+  const [draft, setDraft] = useState("");
+  const tags = Array.isArray(value) ? value : [];
+
+  function add() {
+    const tag = draft.trim();
+    if (tag && !tags.includes(tag)) onChange([...tags, tag]);
+    setDraft("");
+  }
+
+  function remove(tag) {
+    onChange(tags.filter((t) => t !== tag));
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag) => (
+          <span
+            key={tag}
+            className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-sm text-foreground"
+          >
+            {tag}
+            <button
+              type="button"
+              onClick={() => remove(tag)}
+              className="text-muted-foreground transition hover:text-error"
+              aria-label={`Remove ${tag}`}
+            >
+              <FaTrash className="h-3 w-3" />
+            </button>
+          </span>
+        ))}
+        {tags.length === 0 && (
+          <span className="text-xs text-muted-foreground">No tags yet — add some below.</span>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={draft}
+          placeholder="Add a tag…"
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              add();
+            }
+          }}
+          className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        />
+        <AppButton type="button" variant="outline" size="sm" onClick={add}>
+          <FaPlus /> Add
+        </AppButton>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Shown as the scrolling strip above the navbar. Press Enter to add.
+      </p>
+    </div>
+  );
+}
+
 const TABS = [
   { id: "general", label: "General" },
   { id: "hero", label: "Hero" },
@@ -195,6 +257,7 @@ export default function SettingsPage() {
             <Field label="Primary CTA"><TextInput value={form.heroPrimaryCta} onChange={(e) => upd("heroPrimaryCta", e.target.value)} /></Field>
             <Field label="Secondary CTA"><TextInput value={form.heroSecondaryCta} onChange={(e) => upd("heroSecondaryCta", e.target.value)} /></Field>
             <Field label="Description" className="md:col-span-2"><TextArea rows={3} value={form.heroDescription} onChange={(e) => upd("heroDescription", e.target.value)} /></Field>
+            <Field label="Marquee Tags" className="md:col-span-2"><TagEditor value={form.heroTags} onChange={(v) => upd("heroTags", v)} /></Field>
             <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
               <span className="text-sm font-medium">Enable Hero Section</span>
               <input type="checkbox" className="toggle toggle-primary" checked={!!form.heroEnabled} onChange={(e) => upd("heroEnabled", e.target.checked)} />

@@ -12,6 +12,31 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin12345";
 async function main() {
   console.log("Seeding database...");
 
+  // Idempotent backfill: existing installs (with an admin already present) get
+  // the new hero tags so the marquee strip isn't empty, without wiping content.
+  const existingSettings = await prisma.siteSetting.findFirst();
+  if (
+    existingSettings &&
+    (!existingSettings.heroTags || existingSettings.heroTags.length === 0)
+  ) {
+    await prisma.siteSetting.update({
+      where: { id: existingSettings.id },
+      data: {
+        heroTags: [
+          "Problem Solver",
+          "Quick Learner",
+          "MERN Stack Developer",
+          "Clean Code Advocate",
+          "Team Player",
+          "Frontend & Backend",
+          "Attention to Detail",
+          "Always Curious",
+        ],
+      },
+    });
+    console.log("  Backfilled hero tags on existing settings.");
+  }
+
   // Non-destructive by default: skip if an admin user exists so re-running the
   // seed never wipes content edited through the dashboard. Pass RESEED=1 to
   // force a clean reset (dev only).
@@ -19,7 +44,7 @@ async function main() {
     const existingUser = await prisma.user.findFirst();
     if (existingUser) {
       console.log(
-        "Database already seeded (admin user found). Skipping to avoid wiping content."
+        "Database already seeded (admin user found). Skipping to avoid wiping content.",
       );
       console.log("  Run with RESEED=1 to force a clean reseed.");
       return;
@@ -68,10 +93,21 @@ async function main() {
       heroPrimaryCta: "Download Resume",
       heroSecondaryCta: "Contact Me",
       heroEnabled: true,
+      heroTags: [
+        "Problem Solver",
+        "Quick Learner",
+        "MERN Stack Developer",
+        "Clean Code Advocate",
+        "Team Player",
+        "Frontend & Backend",
+        "Attention to Detail",
+        "Always Curious",
+      ],
       seoTitle: "Souad || MERN Developer",
       seoDescription:
         "Portfolio of Md Souad Al Kabir, a MERN stack web developer building scalable and impactful web applications.",
-      seoKeywords: "MERN, React, Node.js, MongoDB, Express, portfolio, web developer",
+      seoKeywords:
+        "MERN, React, Node.js, MongoDB, Express, portfolio, web developer",
       seoOgImage: "/Souad.jpg",
       seoAuthor: "Md Souad Al Kabir",
       seoCanonicalUrl: "",
@@ -80,7 +116,12 @@ async function main() {
 
   // -------- Social links --------
   const socials = [
-    { label: "GitHub", url: "https://github.com/souad5", icon: "FaGithub", order: 0 },
+    {
+      label: "GitHub",
+      url: "https://github.com/souad5",
+      icon: "FaGithub",
+      order: 0,
+    },
     {
       label: "LinkedIn",
       url: "https://www.linkedin.com/in/souadalkabir/",
@@ -117,7 +158,12 @@ async function main() {
     { key: "projects", label: "Projects", enabled: true, order: 4 },
     { key: "services", label: "Services", enabled: false, order: 5 },
     { key: "testimonials", label: "Testimonials", enabled: false, order: 6 },
-    { key: "certifications", label: "Certifications", enabled: false, order: 7 },
+    {
+      key: "certifications",
+      label: "Certifications",
+      enabled: false,
+      order: 7,
+    },
     { key: "achievements", label: "Achievements", enabled: false, order: 8 },
     { key: "contact", label: "Contact", enabled: true, order: 9 },
   ];
@@ -165,16 +211,76 @@ async function main() {
     data: { name: "Tools", order: 2 },
   });
   const skills = [
-    { name: "HTML", level: 90, icon: "FaHtml5", categoryId: frontendCat.id, order: 0 },
-    { name: "CSS", level: 85, icon: "FaCss3Alt", categoryId: frontendCat.id, order: 1 },
-    { name: "JavaScript", level: 80, icon: "FaJs", categoryId: frontendCat.id, order: 2 },
-    { name: "React", level: 80, icon: "FaReact", categoryId: frontendCat.id, order: 3 },
-    { name: "Node.js", level: 75, icon: "FaNode", categoryId: backendCat.id, order: 0 },
-    { name: "Express", level: 70, icon: "SiExpress", categoryId: backendCat.id, order: 1 },
-    { name: "MongoDB", level: 70, icon: "SiMongodb", categoryId: backendCat.id, order: 2 },
-    { name: "Git", level: 80, icon: "FaGitAlt", categoryId: toolsCat.id, order: 0 },
-    { name: "Docker", level: 60, icon: "FaDocker", categoryId: toolsCat.id, order: 1 },
-    { name: "VS Code", level: 90, icon: "SiViblo", categoryId: toolsCat.id, order: 2 },
+    {
+      name: "HTML",
+      level: 90,
+      icon: "FaHtml5",
+      categoryId: frontendCat.id,
+      order: 0,
+    },
+    {
+      name: "CSS",
+      level: 85,
+      icon: "FaCss3Alt",
+      categoryId: frontendCat.id,
+      order: 1,
+    },
+    {
+      name: "JavaScript",
+      level: 80,
+      icon: "FaJs",
+      categoryId: frontendCat.id,
+      order: 2,
+    },
+    {
+      name: "React",
+      level: 80,
+      icon: "FaReact",
+      categoryId: frontendCat.id,
+      order: 3,
+    },
+    {
+      name: "Node.js",
+      level: 75,
+      icon: "FaNode",
+      categoryId: backendCat.id,
+      order: 0,
+    },
+    {
+      name: "Express",
+      level: 70,
+      icon: "SiExpress",
+      categoryId: backendCat.id,
+      order: 1,
+    },
+    {
+      name: "MongoDB",
+      level: 70,
+      icon: "SiMongodb",
+      categoryId: backendCat.id,
+      order: 2,
+    },
+    {
+      name: "Git",
+      level: 80,
+      icon: "FaGitAlt",
+      categoryId: toolsCat.id,
+      order: 0,
+    },
+    {
+      name: "Docker",
+      level: 60,
+      icon: "FaDocker",
+      categoryId: toolsCat.id,
+      order: 1,
+    },
+    {
+      name: "VS Code",
+      level: 90,
+      icon: "SiViblo",
+      categoryId: toolsCat.id,
+      order: 2,
+    },
   ];
   await prisma.skill.createMany({ data: skills });
 
@@ -223,8 +329,7 @@ async function main() {
       githubUrl: "https://github.com/Souad5/Assignment-10-Client",
       challenges:
         "Managing real-time data and user authentication flow was complex.",
-      improvements:
-        "Add more filtering options and mobile app version.",
+      improvements: "Add more filtering options and mobile app version.",
       featured: true,
       published: true,
       order: 0,
@@ -240,8 +345,7 @@ async function main() {
       category: "Full Stack",
       liveUrl: "https://assignment9b11ph.surge.sh/",
       githubUrl: "https://github.com/Souad5/Bill-Management-App",
-      challenges:
-        "Ensuring secure payment integration and responsive UI.",
+      challenges: "Ensuring secure payment integration and responsive UI.",
       improvements: "Add multi-language support and offline bill entry.",
       featured: false,
       published: true,
@@ -258,9 +362,9 @@ async function main() {
       category: "Full Stack",
       liveUrl: "https://assignment-11-d2902.web.app/",
       githubUrl: "https://github.com/Souad5/Knowledge-Share",
-      challenges: "Implementing secure JWT auth and optimizing database queries.",
-      improvements:
-        "Add notifications and AI-based content suggestions.",
+      challenges:
+        "Implementing secure JWT auth and optimizing database queries.",
+      improvements: "Add notifications and AI-based content suggestions.",
       featured: false,
       published: true,
       order: 2,

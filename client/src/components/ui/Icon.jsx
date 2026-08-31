@@ -38,6 +38,7 @@ import {
   FaLaptop,
   FaSlidersH,
   FaChartBar,
+  FaDownload,
 } from "react-icons/fa";
 import { SiMongodb, SiExpress, SiViblo, SiPostgresql, SiTypescript, SiPython, SiTailwindcss } from "react-icons/si";
 import { MdEmail } from "react-icons/md";
@@ -83,6 +84,7 @@ const REGISTRY = {
   FaLaptop,
   FaSlidersH,
   FaChartBar,
+  FaDownload,
   SiMongodb,
   SiExpress,
   SiViblo,
