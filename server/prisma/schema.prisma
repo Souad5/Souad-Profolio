@@ -1,0 +1,288 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------
+// Site-wide settings: personal info, socials, hero, SEO, visibility
+// ---------------------------------------------------------------
+model SiteSetting {
+  id              Int      @id @default(autoincrement())
+  // Personal
+  name            String   @default("Md Souad Al Kabir")
+  title           String   @default("MERN Stack Developer")
+  shortBio        String   @default("")
+  email           String   @default("souadalkabir@gmail.com")
+  phone           String   @default("+8801830807523")
+  location        String   @default("")
+  profileImage    String   @default("/Souad.jpg")
+  resumeUrl       String   @default("")
+  availability    String   @default("Available for opportunities")
+  // Hero
+  heroGreeting    String   @default("Hi, I'm")
+  heroHeading     String   @default("Md Souad Al Kabir")
+  heroHighlight   String   @default("Al Kabir")
+  heroSubtitle    String   @default("MERN Stack Web Developer")
+  heroDescription String   @default("")
+  heroPrimaryCta  String   @default("Download Resume")
+  heroSecondaryCta String  @default("Contact Me")
+  heroEnabled     Boolean  @default(true)
+  // SEO
+  seoTitle        String   @default("Souad || MERN Developer")
+  seoDescription  String   @default("")
+  seoKeywords     String   @default("")
+  seoOgImage      String   @default("/Souad.jpg")
+  seoAuthor       String   @default("Md Souad Al Kabir")
+  seoCanonicalUrl String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  socialLinks     SocialLink[]
+}
+
+// ---------------------------------------------------------------
+// Social links (belong to SiteSetting)
+// ---------------------------------------------------------------
+model SocialLink {
+  id       Int    @id @default(autoincrement())
+  label    String
+  url      String
+  icon     String @default("FaGithub")
+  order    Int    @default(0)
+  enabled  Boolean @default(true)
+  settingId Int
+  setting  SiteSetting @relation(fields: [settingId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------------
+// Section visibility + ordering
+// ---------------------------------------------------------------
+model SectionVisibility {
+  id       Int    @id @default(autoincrement())
+  key      String @unique // about, skills, experience, education, projects, services, testimonials, certifications, achievements, blog, contact
+  label    String
+  enabled  Boolean @default(true)
+  order    Int    @default(0)
+}
+
+// ---------------------------------------------------------------
+// About section
+// ---------------------------------------------------------------
+model About {
+  id          Int    @id @default(autoincrement())
+  heading     String @default("About Me")
+  description String @db.Text
+  image       String @default("/Souad.jpg")
+  focusPoints Json    @default("[]") // array of {text, color}
+  skillTags   Json    @default("[]") // array of strings
+  highlights  Json    @default("[]")
+  enabled     Boolean @default(true)
+  order       Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------
+// Skills
+// ---------------------------------------------------------------
+model SkillCategory {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique // Frontend, Backend, Tools
+  order     Int      @default(0)
+  enabled   Boolean  @default(true)
+  skills    Skill[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Skill {
+  id         Int       @id @default(autoincrement())
+  name       String
+  level      Int       @default(0)
+  icon       String    @default("FaStar")
+  order      Int       @default(0)
+  enabled    Boolean   @default(true)
+  categoryId Int
+  category   SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([categoryId])
+}
+
+// ---------------------------------------------------------------
+// Experience
+// ---------------------------------------------------------------
+model Experience {
+  id           Int      @id @default(autoincrement())
+  company      String
+  position     String
+  employmentType String @default("Full-time")
+  location     String   @default("")
+  startDate    DateTime
+  endDate      DateTime?
+  current      Boolean  @default(false)
+  description  String @db.Text
+  technologies Json     @default("[]")
+  logo         String   @default("")
+  order        Int      @default(0)
+  enabled      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------
+// Education
+// ---------------------------------------------------------------
+model Education {
+  id          Int      @id @default(autoincrement())
+  institution String
+  degree      String
+  result      String?
+  image       String   @default("")
+  startYear   String?
+  endYear     String?
+  order       Int      @default(0)
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------
+// Projects
+// ---------------------------------------------------------------
+model Project {
+  id              Int      @id @default(autoincrement())
+  title           String
+  slug            String   @unique
+  shortDescription String
+  description     String @db.Text
+  thumbnail       String   @default("")
+  gallery         Json     @default("[]")
+  technologies    Json     @default("[]")
+  category        String   @default("")
+  liveUrl         String   @default("")
+  githubUrl       String   @default("")
+  challenges      String?
+  improvements    String?
+  featured        Boolean  @default(false)
+  published       Boolean  @default(true)
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------
+// Services
+// ---------------------------------------------------------------
+model Service {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String @db.Text
+  icon        String   @default("FaCode")
+  order       Int      @default(0)
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------
+// Testimonials
+// ---------------------------------------------------------------
+model Testimonial {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      String?
+  company   String?
+  content   String @db.Text
+  avatar    String   @default("")
+  rating    Int      @default(5)
+  featured  Boolean  @default(false)
+  order     Int      @default(0)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------
+// Certifications
+// ---------------------------------------------------------------
+model Certification {
+  id          Int      @id @default(autoincrement())
+  title       String
+  issuer      String
+  year        String?
+  link        String?
+  image       String   @default("")
+  order       Int      @default(0)
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------
+// Achievements
+// ---------------------------------------------------------------
+model Achievement {
+  id        Int      @id @default(autoincrement())
+  title     String
+  detail    String
+  icon      String   @default("FaTrophy")
+  order     Int      @default(0)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------
+// Navigation
+// ---------------------------------------------------------------
+model NavigationItem {
+  id      Int    @id @default(autoincrement())
+  label   String
+  target  String // anchor name e.g. home, about, skills, projects, contact
+  order   Int    @default(0)
+  enabled Boolean @default(true)
+}
+
+// ---------------------------------------------------------------
+// Contact messages (submitted via public form)
+// ---------------------------------------------------------------
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String   @default("")
+  message   String @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------
+// Media assets (URL-based metadata)
+// ---------------------------------------------------------------
+model MediaAsset {
+  id        Int      @id @default(autoincrement())
+  url       String
+  filename  String
+  mimeType  String
+  size      Int
+  createdAt DateTime @default(now())
+}
