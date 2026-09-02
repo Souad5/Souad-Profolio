@@ -32,18 +32,20 @@ export default function SkillsPage() {
       title="Skills"
       subtitle="Manage the skills shown on the public portfolio"
       queryKey="skills"
+      reorderable
       api={{
         list: (p) => api.list(p),
         create: (d) => api.create(d),
         update: (id, d) => api.update(id, d),
         remove: (id) => api.remove(id),
+        reorder: (items) => api.reorder(items),
       }}
       columns={columns}
       fields={[
         { name: "name", label: "Skill Name", required: true },
         { name: "level", label: "Level (0-100)", type: "number" },
         { name: "icon", label: "Icon", hint: "react-icons name, e.g. FaReact, FaHtml5, SiMongodb" },
-        { name: "categoryId", label: "Category", type: "select", options: categories.map((c) => ({ value: c.id, label: c.name })) },
+        { name: "categoryId", label: "Category", type: "select", required: true, default: categories[0]?.id, options: categories.map((c) => ({ value: c.id, label: c.name })) },
         { name: "order", label: "Order", type: "number" },
         { name: "enabled", label: "Enabled", type: "boolean" },
       ]}

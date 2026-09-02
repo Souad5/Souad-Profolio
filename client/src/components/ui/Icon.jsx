@@ -42,6 +42,7 @@ import {
 } from "react-icons/fa";
 import { SiMongodb, SiExpress, SiViblo, SiPostgresql, SiTypescript, SiPython, SiTailwindcss } from "react-icons/si";
 import { MdEmail } from "react-icons/md";
+import { RiNextjsFill } from "react-icons/ri";
 
 // Curated registry of icons addressable by the string names stored in the DB.
 const REGISTRY = {
@@ -93,6 +94,7 @@ const REGISTRY = {
   SiPython,
   SiTailwindcss,
   MdEmail,
+  RiNextjsFill,
 };
 
 export default function Icon({ name, className = "", ...props }) {

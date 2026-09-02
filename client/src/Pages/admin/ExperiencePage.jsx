@@ -49,6 +49,12 @@ export default function ExperiencePage() {
           ],
         },
         { name: "description", label: "Description", type: "textarea", rows: 4 },
+        {
+          name: "highlights",
+          label: "Highlights",
+          type: "tags",
+          hint: "Key duties or achievements — one per line",
+        },
         { name: "technologies", label: "Technologies", type: "tags", hint: "One per line" },
         { name: "logo", label: "Company Logo URL", type: "image" },
         { name: "order", label: "Order", type: "number" },

@@ -9,6 +9,16 @@ const skill = crudController(prisma.skill, {
   searchFields: ["name"],
   defaultOrderBy: { order: "asc" },
   include: { category: true },
+  requiredFields: ["categoryId"],
+  preprocess: (data) => ({
+    ...data,
+    // The admin <select> posts categoryId as a string; Prisma Int fields
+    // require a number (defensive against any client sending a string).
+    categoryId:
+      data.categoryId == null || data.categoryId === ""
+        ? undefined
+        : Number(data.categoryId),
+  }),
 });
 
 // The admin date inputs post values like "2025-12-01" (date-only), but Prisma

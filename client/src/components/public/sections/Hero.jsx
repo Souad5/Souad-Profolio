@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef } from "react";
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { useSiteSettings, useSkills } from "../../../hooks/usePortfolio.js";
 import Icon from "../../ui/Icon.jsx";
@@ -109,94 +110,119 @@ export default function Hero() {
   const description = s?.heroDescription || s?.shortBio;
 
   // Entrance timeline + idle ambient loops, scoped for clean GSAP cleanup.
-  useLayoutEffect(() => {
-    if (!ready) return;
-    const ctx = gsap.context(() => {
+  // useGSAP creates a context scoped to rootRef and auto-reverts on unmount
+  // or dependency change. Every selector is additionally guarded so a missing
+  // node (e.g. no description -> no emblem) never triggers "target not found".
+  useGSAP(
+    () => {
+      const root = rootRef.current;
+      if (!root || !ready) return;
+
+      // Scoped existence check: does at least one matching node exist?
+      const has = (selector) => gsap.utils.toArray(selector, root).length > 0;
+
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       // 1. Waves "draw in" via stroke-dashoffset (pathLength=1 on each path).
-      tl.fromTo(
-        ".wave-path",
-        { strokeDashoffset: 1 },
-        { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut", delay: 0.15 },
-        0
-      );
+      if (has(".wave-path")) {
+        tl.fromTo(
+          ".wave-path",
+          { strokeDashoffset: 1 },
+          { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut", delay: 0.15 },
+          0
+        );
+      }
 
       // 2. Greeting slides/fades in.
-      tl.fromTo(
-        "[data-hero='greeting']",
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.7 },
-        "+=0.15"
-      );
+      if (has("[data-hero='greeting']")) {
+        tl.fromTo(
+          "[data-hero='greeting']",
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.7 },
+          "+=0.15"
+        );
+      }
 
       // 3. Giant role text — a word-per-line stagger with y-offset for weight.
-      tl.fromTo(
-        ".hero-line",
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.16 },
-        "-=0.3"
-      ).fromTo(
-        ".hero-word",
-        { opacity: 0, yPercent: 110 },
-        { opacity: 1, yPercent: 0, duration: 0.7, ease: "power3.out", stagger: 0.05 },
-        "<"
-      );
+      if (has(".hero-line")) {
+        tl.fromTo(
+          ".hero-line",
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.6, stagger: 0.16 },
+          "-=0.3"
+        );
+      }
+      if (has(".hero-word")) {
+        tl.fromTo(
+          ".hero-word",
+          { opacity: 0, yPercent: 110 },
+          { opacity: 1, yPercent: 0, duration: 0.7, ease: "power3.out", stagger: 0.05 },
+          "<"
+        );
+      }
 
       // 4. Description + code icon, badge, buttons, socials stagger in.
-      tl.fromTo(
-        "[data-hero='sub']",
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 },
-        "-=0.2"
-      );
+      if (has("[data-hero='sub']")) {
+        tl.fromTo(
+          "[data-hero='sub']",
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 },
+          "-=0.2"
+        );
+      }
 
       // 5. Floating skill icons reveal + start their own perpetual float.
-      gsap.fromTo(
-        ".hero-float",
-        { opacity: 0, scale: 0.5, y: 20 },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          duration: 0.8,
-          ease: "back.out(1.7)",
-          stagger: 0.08,
-          delay: tl.duration(),
-        }
-      );
-      gsap.utils.toArray(".hero-float").forEach((el, i) => {
-        const drift = 8 + (i % 4) * 3;
-        gsap.to(el, {
-          y: `+=${drift}`,
-          duration: 3.2 + (i % 3),
+      const floats = gsap.utils.toArray(".hero-float", root);
+      if (floats.length) {
+        gsap.fromTo(
+          floats,
+          { opacity: 0, scale: 0.5, y: 20 },
+          {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "back.out(1.7)",
+            stagger: 0.08,
+            delay: tl.duration(),
+          }
+        );
+        floats.forEach((el, i) => {
+          const drift = 8 + (i % 4) * 3;
+          gsap.to(el, {
+            y: `+=${drift}`,
+            duration: 3.2 + (i % 3),
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1,
+            delay: (i % 5) * 0.4,
+          });
+        });
+      }
+
+      // Part 2 — ambient idle motion for waves + code icon (after entrance).
+      if (has(".wave-path")) {
+        gsap.to(".wave-path", {
+          x: 40,
+          duration: 5,
           ease: "sine.inOut",
           yoyo: true,
           repeat: -1,
-          delay: (i % 5) * 0.4,
         });
-      });
-
-      // Part 2 — ambient idle motion for waves + code icon (after entrance).
-      gsap.to(".wave-path", {
-        x: 40,
-        duration: 5,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
-      });
-      gsap.to("[data-hero='emblem']", {
-        rotate: -8,
-        scale: 1.08,
-        duration: 2.2,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
-      });
-    }, rootRef);
-
-    return () => ctx.revert();
-  }, [ready, floatingSkills.length]);
+      }
+      if (has("[data-hero='emblem']")) {
+        gsap.to("[data-hero='emblem']", {
+          rotate: -8,
+          scale: 1.08,
+          duration: 2.2,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+        });
+      }
+    },
+    { scope: rootRef, dependencies: [ready, floatingSkills.length] }
+  );
 
   return (
     <Section

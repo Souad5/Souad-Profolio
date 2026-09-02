@@ -2,6 +2,7 @@
 import type { Request, Response } from "express";
 import type { PrismaClient } from "@prisma/client";
 import { ApiError } from "../utils/ApiError.js";
+import { prisma } from "../config/prisma.js";
 import { created, ok } from "../utils/handler.js";
 
 type PrismaDelegate = {
@@ -18,7 +19,12 @@ interface CrudOptions {
   defaultOrderBy?: Record<string, any>;
   include?: Record<string, any>;
   preprocess?: (data: any) => any;
+  requiredFields?: string[];
 }
+
+/** Prisma rejects `undefined` values on required fields; drop them first. */
+const withoutUndefined = (obj: Record<string, any>) =>
+  Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));
 
 export function crudController(
   delegate: PrismaDelegate,
@@ -29,6 +35,7 @@ export function crudController(
     defaultOrderBy = { order: "asc" },
     include,
     preprocess,
+    requiredFields = [],
   } = options;
 
   const list = async (req: Request, res: Response) => {
@@ -77,14 +84,19 @@ export function crudController(
   };
 
   const create = async (req: Request, res: Response) => {
-    const data = preprocess ? preprocess(req.body) : req.body;
+    const body = (req.body ?? {}) as Record<string, any>;
+    const missing = requiredFields.filter((f) => body[f] == null || body[f] === "");
+    if (missing.length) {
+      throw new ApiError(400, `Missing required field(s): ${missing.join(", ")}`);
+    }
+    const data = withoutUndefined(preprocess ? preprocess(body) : body);
     const item = await delegate.create({ data });
     return created(res, item);
   };
 
   const update = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
-    const data = preprocess ? preprocess(req.body) : req.body;
+    const data = withoutUndefined(preprocess ? preprocess(req.body) : req.body);
     const item = await delegate.update({ where: { id }, data });
     return ok(res, item);
   };
@@ -95,7 +107,29 @@ export function crudController(
     return ok(res, { id });
   };
 
-  return { list, getById, create, update, remove };
+  const reorder = async (req: Request, res: Response) => {
+    const items = req.body?.items ?? req.body;
+    if (
+      !Array.isArray(items) ||
+      items.length === 0 ||
+      items.some((it) => it == null || it.id == null || it.order == null)
+    ) {
+      throw new ApiError(400, "Expected an array of { id, order } objects");
+    }
+    // Batch update every row's order in a single transaction so the list is
+    // never left half-reordered if one update fails.
+    await prisma.$transaction(
+      items.map((it) =>
+        delegate.update({
+          where: { id: Number(it.id) },
+          data: { order: Number(it.order) },
+        }),
+      ) as any,
+    );
+    return ok(res, { updated: items.length });
+  };
+
+  return { list, getById, create, update, remove, reorder };
 }
 
 export const withPrisma = (client: PrismaClient) => client;

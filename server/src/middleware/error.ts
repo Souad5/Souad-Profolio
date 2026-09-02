@@ -19,6 +19,13 @@ export function errorHandler(
       .json({ success: false, message: err.message });
   }
 
+  if (err instanceof Prisma.PrismaClientValidationError) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid payload: check the submitted fields and try again",
+    });
+  }
+
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
       return res.status(409).json({
@@ -28,6 +35,12 @@ export function errorHandler(
     }
     if (err.code === "P2025") {
       return res.status(404).json({ success: false, message: "Record not found" });
+    }
+    if (err.code === "P2003") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid reference: the related record does not exist",
+      });
     }
   }
 

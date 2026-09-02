@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import DataTable from "./DataTable.jsx";
 import FormModal from "./FormModal.jsx";
@@ -31,6 +31,10 @@ function fromFormState(state, fields) {
     if (f.type === "tags") v = String(v).split("\n").map((s) => s.trim()).filter(Boolean);
     else if (f.type === "number") v = v === "" ? undefined : Number(v);
     else if (f.type === "boolean") v = !!v;
+    else if (f.type === "select" && v !== "") {
+      const opt = f.options?.find((o) => String(o.value) === String(v));
+      v = opt !== undefined && typeof opt.value === "number" ? Number(v) : v;
+    }
     data[f.name] = v;
   }
   return data;
@@ -74,7 +78,8 @@ function FieldRenderer({ field, value, onChange }) {
   if (field.type === "select")
     return (
       <Field label={field.label}>
-        <select className="select select-bordered w-full" value={value ?? ""} onChange={(e) => onChange(e.target.value)}>
+        <select className="select select-bordered w-full" value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required}>
+          <option value="" disabled>Select {field.label.toLowerCase()}</option>
           {field.options.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
@@ -108,6 +113,7 @@ export default function CrudPage({
   emptyMessage = "No records found",
   onDuplicate,
   duplicateLabel,
+  reorderable = false,
 }) {
   const qc = useQueryClient();
   const toast = useToast();
@@ -116,6 +122,7 @@ export default function CrudPage({
   const [editing, setEditing] = useState(undefined); // null => closed
   const [deleting, setDeleting] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [rows, setRows] = useState([]);
 
   // Namespace admin list caches under an "admin" prefix so they never collide
   // with (or invalidate) the public landing page's same-named caches (e.g.
@@ -129,6 +136,12 @@ export default function CrudPage({
     queryFn: () => api.list({ search, limit: 500 }),
     select: (res) => res?.data?.items ?? [],
   });
+
+  // Keep the view in sync with fresh server data (covers refetches that follow
+  // create/update/delete, and reverts after a failed reorder).
+  useEffect(() => {
+    if (data) setRows(data);
+  }, [data]);
 
   const deleteMut = useMutation({ mutationFn: (id) => api.remove(id) });
 
@@ -171,6 +184,21 @@ export default function CrudPage({
     }
   }
 
+  // Optimistically reorders the visible rows, then persists the new order.
+  async function handleReorder(next) {
+    setRows(next);
+    const payload = next.map((r, i) => ({ id: r.id, order: i }));
+    try {
+      await api.reorder(payload);
+      toast.success("Order updated");
+      await qc.invalidateQueries({ queryKey: adminKey });
+      await refetch();
+    } catch (err) {
+      toast.error(err.message || "Failed to update order");
+      await refetch();
+    }
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader title={title} subtitle={subtitle} count={data?.length} />
@@ -183,7 +211,7 @@ export default function CrudPage({
 
       <DataTable
         columns={columns}
-        rows={data ?? []}
+        rows={rows}
         loading={isLoading}
         emptyMessage={emptyMessage}
         searchValue={search}
@@ -191,6 +219,8 @@ export default function CrudPage({
         addLabel={`Add ${title.replace(/s$/, "")}`}
         onAdd={startAdd}
         density={prefs.tableDensity}
+        reorderable={reorderable}
+        onReorder={handleReorder}
         actions={(row) => (
           <div className="flex justify-end gap-1">
             {onDuplicate && (

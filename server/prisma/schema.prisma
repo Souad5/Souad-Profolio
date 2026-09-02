@@ -141,6 +141,7 @@ model Experience {
   endDate      DateTime?
   current      Boolean  @default(false)
   description  String @db.Text
+  highlights   Json     @default("[]") // string[] of key duties/achievements
   technologies Json     @default("[]")
   logo         String   @default("")
   order        Int      @default(0)

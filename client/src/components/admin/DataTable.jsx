@@ -1,11 +1,38 @@
-import { FaPlus } from "react-icons/fa";
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { FaGripVertical, FaPlus } from "react-icons/fa";
 import { AppButton } from "../ui/app-button.jsx";
 import { AppInput } from "../ui/app-input.jsx";
 import { Skeleton } from "../ui/skeleton.jsx";
 
-function SkeletonRows({ columnsCount, actions, cellPadding }) {
+function arrayMove(arr, from, to) {
+  const next = [...arr];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
+// Drop an item to its destination index within a list of [length]
+function findIndex(rows, id) {
+  return rows.findIndex((r) => String(r.id ?? r) === String(id));
+}
+
+function SkeletonRows({ columnsCount, actions, reorderable, cellPadding }) {
   const rowCount = 5;
-  const cells = columnsCount + (actions ? 1 : 0);
+  const cells = columnsCount + (actions ? 1 : 0) + (reorderable ? 1 : 0);
   return (
     <>
       {Array.from({ length: rowCount }).map((_, r) => (
@@ -26,8 +53,58 @@ const densityPaddings = {
   comfortable: { cell: "px-6 py-5", row: "px-7 py-5", head: "px-6 py-4" },
 };
 
-function TableBody({ columns, rows, loading, actions, emptyMessage, density }) {
-  const colSpan = columns.length + (actions ? 1 : 0);
+function SortableRow({ row, index, columns, actions, cell }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: String(row.id ?? index), data: { index } });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={`border-b border-border/60 transition-colors last:border-0 ${
+        isDragging ? "bg-primary/5 opacity-80" : "hover:bg-muted/40"
+      }`}
+    >
+      <td
+        {...listeners}
+        {...attributes}
+        title="Drag to reorder"
+        className={`${cell} w-10 cursor-grab align-middle active:cursor-grabbing`}
+        aria-label="Drag to reorder"
+      >
+        <FaGripVertical className="mx-auto text-muted-foreground" />
+      </td>
+      {columns.map((c) => (
+        <td key={c.key || c.label} className={`${cell} align-middle`}>
+          {c.render
+            ? c.render(row)
+            : (row[c.key] ?? <span className="text-muted-foreground">—</span>)}
+        </td>
+      ))}
+      {actions && (
+        <td className={`whitespace-nowrap ${cell} text-right align-middle`}>
+          {actions(row)}
+        </td>
+      )}
+    </tr>
+  );
+}
+
+function TableBody({
+  columns,
+  rows,
+  loading,
+  actions,
+  emptyMessage,
+  density,
+  reorderable,
+}) {
+  const colSpan = columns.length + (actions ? 1 : 0) + (reorderable ? 1 : 0);
   const { cell, row } = densityPaddings[density] ?? densityPaddings.comfortable;
 
   if (loading) {
@@ -35,6 +112,7 @@ function TableBody({ columns, rows, loading, actions, emptyMessage, density }) {
       <SkeletonRows
         columnsCount={columns.length}
         actions={!!actions}
+        reorderable={!!reorderable}
         cellPadding={cell}
       />
     );
@@ -72,20 +150,33 @@ function TableBody({ columns, rows, loading, actions, emptyMessage, density }) {
     );
   }
 
+  if (reorderable) {
+    return rows.map((row, i) => (
+      <SortableRow
+        key={String(row.id ?? i)}
+        row={row}
+        index={i}
+        columns={columns}
+        actions={actions}
+        cell={cell}
+      />
+    ));
+  }
+
   return rows.map((row, i) => (
     <tr
       key={row.id ?? i}
       className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/40"
     >
       {columns.map((c) => (
-        <td key={c.key || c.label} className={`${row} align-middle p-4`}>
+        <td key={c.key || c.label} className={`${cell} align-middle`}>
           {c.render
             ? c.render(row)
             : (row[c.key] ?? <span className="text-muted-foreground">—</span>)}
         </td>
       ))}
       {actions && (
-        <td className={`whitespace-nowrap ${row} text-right align-middle`}>
+        <td className={`whitespace-nowrap ${cell} text-right align-middle`}>
           {actions(row)}
         </td>
       )}
@@ -104,12 +195,86 @@ export default function DataTable({
   addLabel,
   onAdd,
   density = "comfortable",
+  reorderable = false,
+  onReorder,
 }) {
   const showToolbar = searchValue !== undefined || addLabel;
   const headPadding =
     densityPaddings[density]?.head ?? densityPaddings.comfortable.head;
+  const searching = !!(searchValue && searchValue.trim());
+  const dragEnabled = reorderable && typeof onReorder === "function" && !searching;
 
-  return (
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = findIndex(rows, active.id);
+    const newIndex = findIndex(rows, over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    onReorder(arrayMove(rows, oldIndex, newIndex));
+  }
+
+  const table = (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
+        <thead className="sticky top-0 z-10">
+          <tr className="border-b border-border bg-muted/40 text-left">
+            {dragEnabled && (
+              <th className={`${headPadding} w-10`} aria-label="Reorder" />
+            )}
+            {columns.map((c) => (
+              <th
+                key={c.key || c.label}
+                className={`whitespace-nowrap ${headPadding} text-xs font-semibold uppercase tracking-wider text-muted-foreground`}
+              >
+                {c.label}
+              </th>
+            ))}
+            {actions && (
+              <th
+                className={`whitespace-nowrap ${headPadding} text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground`}
+              >
+                Actions
+              </th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {dragEnabled ? (
+            <SortableContext
+              items={rows.map((r) => String(r.id))}
+              strategy={verticalListSortingStrategy}
+            >
+              <TableBody
+                columns={columns}
+                rows={rows}
+                loading={loading}
+                actions={actions}
+                emptyMessage={emptyMessage}
+                density={density}
+                reorderable
+              />
+            </SortableContext>
+          ) : (
+            <TableBody
+              columns={columns}
+              rows={rows}
+              loading={loading}
+              actions={actions}
+              emptyMessage={emptyMessage}
+              density={density}
+            />
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const card = (
     <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       {showToolbar && (
         <div className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -130,40 +295,19 @@ export default function DataTable({
           )}
         </div>
       )}
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
-          <thead className="sticky top-0 z-10">
-            <tr className="border-b border-border bg-muted/40 text-left">
-              {columns.map((c) => (
-                <th
-                  key={c.key || c.label}
-                  className={`whitespace-nowrap ${headPadding} text-xs font-semibold uppercase tracking-wider text-muted-foreground`}
-                >
-                  {c.label}
-                </th>
-              ))}
-              {actions && (
-                <th
-                  className={`whitespace-nowrap ${headPadding} text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground`}
-                >
-                  Actions
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            <TableBody
-              columns={columns}
-              rows={rows}
-              loading={loading}
-              actions={actions}
-              emptyMessage={emptyMessage}
-              density={density}
-            />
-          </tbody>
-        </table>
-      </div>
+      {table}
     </div>
+  );
+
+  if (!dragEnabled) return card;
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      {card}
+    </DndContext>
   );
 }

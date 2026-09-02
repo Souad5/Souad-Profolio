@@ -170,6 +170,9 @@ admin.post("/projects", asyncHandler(createProject));
 admin.post("/projects/:id/duplicate", asyncHandler(duplicateProject));
 admin.put("/projects/:id", asyncHandler(updateProject));
 admin.delete("/projects/:id", asyncHandler(deleteProject));
+// Must be declared before the generic skills mount (it has no conflicting
+// PATCH /:id route, but keep the specific route first for clarity).
+admin.patch("/skills/reorder", asyncHandler(skill.reorder));
 admin.use("/skills", crudRoutes("skills", skill));
 admin.use("/skill-categories", crudRoutes("skill-categories", skillCat));
 admin.use("/experience", crudRoutes("experience", experience));

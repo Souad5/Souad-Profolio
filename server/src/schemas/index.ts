@@ -87,6 +87,7 @@ export const experienceSchema = z.object({
   endDate: z.coerce.date().nullable().optional(),
   current: z.boolean().default(false),
   description: z.string().optional(),
+  highlights: stringArray.optional(),
   technologies: stringArray.optional(),
   logo: z.string().optional(),
   order: z.number().int().default(0),

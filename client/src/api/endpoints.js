@@ -30,6 +30,8 @@ const adminCrud = (resource) => ({
   create: (data) => api.post(`/admin/${resource}`, data, { auth: true }),
   update: (id, data) => api.put(`/admin/${resource}/${id}`, data, { auth: true }),
   remove: (id) => api.delete(`/admin/${resource}/${id}`, { auth: true }),
+  reorder: (items) =>
+    api.patch(`/admin/${resource}/reorder`, { items }, { auth: true }),
 });
 
 export const admin = {

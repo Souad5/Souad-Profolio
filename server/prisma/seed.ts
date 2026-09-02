@@ -314,6 +314,50 @@ async function main() {
     ],
   });
 
+  // -------- Experience --------
+  await prisma.experience.createMany({
+    data: [
+      {
+        company: "TechNova Solutions",
+        position: "Junior Software Engineer",
+        employmentType: "Full-time",
+        location: "Dhaka, Bangladesh",
+        startDate: new Date("2024-01-15"),
+        endDate: null,
+        current: true,
+        description:
+          "Building and maintaining full-stack features for client-facing web applications.",
+        highlights: [
+          "Ship and maintain React + Node.js features across client-facing applications",
+          "Cut API response times by 30% by refactoring slow MongoDB aggregation queries",
+          "Collaborate in a 6-person agile team on sprint planning, code review, and deploys",
+        ],
+        technologies: ["React", "Node.js", "Express", "MongoDB"],
+        order: 0,
+        enabled: true,
+      },
+      {
+        company: "PixelForge Studio",
+        position: "Frontend Developer Intern",
+        employmentType: "Internship",
+        location: "Remote",
+        startDate: new Date("2023-06-01"),
+        endDate: new Date("2023-11-30"),
+        current: false,
+        description:
+          "Assisted in building responsive marketing sites and internal tooling.",
+        highlights: [
+          "Built responsive UI components in React with Tailwind CSS and reusable design tokens",
+          "Improved Lighthouse performance scores past 90 for key landing pages",
+          "Fixed cross-browser layout bugs reported during QA review cycles",
+        ],
+        technologies: ["React", "Tailwind CSS", "JavaScript"],
+        order: 1,
+        enabled: true,
+      },
+    ],
+  });
+
   // -------- Projects --------
   const projects = [
     {
