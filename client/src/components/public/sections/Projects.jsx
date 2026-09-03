@@ -6,8 +6,12 @@ import { useProjects } from "../../../hooks/usePortfolio.js";
 import { Section } from "./Section.jsx";
 import { AppButton } from "../../ui/app-button.jsx";
 import Icon from "../../ui/Icon.jsx";
-import Modal from "../../ui/modal.jsx";
-import { FaGithub, FaExternalLinkAlt, FaArrowRight } from "react-icons/fa";
+import {
+  FaGithub,
+  FaExternalLinkAlt,
+  FaTimes,
+  FaArrowRight,
+} from "react-icons/fa";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,29 +19,43 @@ gsap.registerPlugin(ScrollTrigger);
 /* Project Detail Modal                                                       */
 /* -------------------------------------------------------------------------- */
 
-function ProjectDetailModal({ project, open, onClose }) {
+function ProjectDetailModal({ project, onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [onClose]);
+
   return (
-    <Modal
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) onClose();
-      }}
-      title={project?.title}
-      description={project?.shortDescription || project?.description}
+    <div
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
     >
-      {/*
-       * Keyed by project id so switching projects re-runs the framer-motion
-       * crossfade transition instead of a hard swap.
-       */}
-      {project && (
-        <motion.div
-          key={project.id}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.25, delay: 0.05 }}
-          className="overflow-y-auto"
+      <div
+        className="relative my-8 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-surface shadow-2xl dark:bg-slate-900"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close project details"
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition hover:bg-black/60"
         >
-          {project.thumbnail ? (
+          <FaTimes />
+        </button>
+
+        {project.thumbnail ? (
           <img
             src={project.thumbnail}
             alt={project.title}
@@ -124,9 +142,8 @@ function ProjectDetailModal({ project, open, onClose }) {
             )}
           </div>
         </div>
-      </motion.div>
-      )}
-    </Modal>
+      </div>
+    </div>
   );
 }
 
@@ -165,7 +182,7 @@ function ProjectCard({ project, index, total, onOpen }) {
             </div>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent" />
 
           <div className="absolute left-5 right-5 top-5 flex items-start justify-between md:left-7 md:right-7 md:top-7">
             <span className="rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
@@ -212,7 +229,7 @@ function ProjectCard({ project, index, total, onOpen }) {
         </div>
       </button>
 
-      <div className="absolute right-5 top-[72px] z-20 flex gap-2 md:right-7">
+      <div className="absolute right-5 top-18 z-20 flex gap-2 md:right-7">
         {project.githubUrl && (
           <a
             href={project.githubUrl}
@@ -363,13 +380,11 @@ export default function Projects() {
   return (
     <>
       <Section
+        ref={containerRef}
         name="projects"
-        className="relative bg-surface-muted/60 dark:bg-slate-900/40"
+        className="relative flex min-h-screen items-center bg-surface-muted/60 py-0! dark:bg-slate-900/40"
       >
-        <div
-          ref={containerRef}
-          className="relative flex min-h-screen items-center"
-        >
+        <div className="w-full">
           <div className="grid w-full grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-14">
             {/* Sidebar */}
             <div className="lg:col-span-4">
@@ -432,7 +447,7 @@ export default function Projects() {
             <div className="lg:col-span-8">
               <div
                 ref={cardsContainerRef}
-                className="relative h-[550px] w-full max-w-2xl mx-auto lg:h-[600px]"
+                className="relative h-137.5 w-full max-w-2xl mx-auto lg:h-150"
               >
                 {projects.map((project, index) => (
                   <ProjectCard
@@ -449,11 +464,12 @@ export default function Projects() {
         </div>
       </Section>
 
-      <ProjectDetailModal
-        project={selected}
-        open={Boolean(selected)}
-        onClose={() => setSelected(null)}
-      />
+      {selected && (
+        <ProjectDetailModal
+          project={selected}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </>
   );
 }

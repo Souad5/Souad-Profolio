@@ -156,7 +156,7 @@ async function main() {
     { key: "experience", label: "Experience", enabled: true, order: 2 },
     { key: "education", label: "Education", enabled: true, order: 3 },
     { key: "projects", label: "Projects", enabled: true, order: 4 },
-    { key: "services", label: "Services", enabled: false, order: 5 },
+    { key: "services", label: "Services", enabled: true, order: 5 },
     { key: "testimonials", label: "Testimonials", enabled: false, order: 6 },
     {
       key: "certifications",
@@ -357,6 +357,39 @@ async function main() {
       },
     ],
   });
+
+  // -------- Services --------
+  const services = [
+    {
+      title: "Web Design",
+      description:
+        "Modern, responsive and accessible interfaces designed with a sharp eye for detail and usability.",
+      icon: "FaLaptopCode",
+      order: 0,
+    },
+    {
+      title: "Frontend Development",
+      description:
+        "Pixel-perfect React applications with buttery-smooth animations built on Tailwind and Framer Motion.",
+      icon: "FaReact",
+      order: 1,
+    },
+    {
+      title: "Backend & APIs",
+      description:
+        "Robust REST APIs and secure authentication with Node.js, Express, and PostgreSQL.",
+      icon: "FaNode",
+      order: 2,
+    },
+    {
+      title: "Full-Stack Products",
+      description:
+        "Complete end-to-end products from database schema to a polished, deployed frontend.",
+      icon: "FaProjectDiagram",
+      order: 3,
+    },
+  ];
+  await prisma.service.createMany({ data: services });
 
   // -------- Projects --------
   const projects = [

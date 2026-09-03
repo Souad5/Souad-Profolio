@@ -43,6 +43,16 @@ import {
 import { SiMongodb, SiExpress, SiViblo, SiPostgresql, SiTypescript, SiPython, SiTailwindcss } from "react-icons/si";
 import { MdEmail } from "react-icons/md";
 import { RiNextjsFill } from "react-icons/ri";
+import {
+  Layout,
+  Target,
+  ShieldCheck,
+  Code2,
+  Compass,
+  Camera,
+  Smartphone,
+  PenTool,
+} from "lucide-react";
 
 // Curated registry of icons addressable by the string names stored in the DB.
 const REGISTRY = {
@@ -95,6 +105,14 @@ const REGISTRY = {
   SiTailwindcss,
   MdEmail,
   RiNextjsFill,
+  Layout,
+  Target,
+  ShieldCheck,
+  Code2,
+  Compass,
+  Camera,
+  Smartphone,
+  PenTool,
 };
 
 export default function Icon({ name, className = "", ...props }) {

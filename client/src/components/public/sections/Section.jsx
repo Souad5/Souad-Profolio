@@ -1,12 +1,21 @@
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 
-export function Section({ id, name, className = "", children }) {
+export const Section = forwardRef(function Section(
+  { id, name, className = "", children },
+  ref,
+) {
   return (
-    <section id={id} name={name} className={`py-20 px-5 sm:px-8 ${className}`}>
+    <section
+      ref={ref}
+      id={id}
+      name={name}
+      className={`py-20 px-5 sm:px-8 ${className}`}
+    >
       <div className="mx-auto max-w-6xl">{children}</div>
     </section>
   );
-}
+});
 
 export function SectionHeading({ eyebrow, title, subtitle }) {
   return (
