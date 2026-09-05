@@ -129,8 +129,8 @@ export default function useCanvasCursor() {
       document.removeEventListener("mousemove", onFirstMove);
       document.removeEventListener("touchstart", onFirstMove);
       document.addEventListener("mousemove", onMove);
-      document.addEventListener("touchmove", onMove);
-      document.addEventListener("touchstart", onTouchStart);
+      document.addEventListener("touchmove", onMove, { passive: true });
+      document.addEventListener("touchstart", onTouchStart, { passive: true });
 
       onMove(event);
       rebuildLines();
@@ -145,7 +145,9 @@ export default function useCanvasCursor() {
         pos.x = event.clientX;
         pos.y = event.clientY;
       }
-      if (event.cancelable) event.preventDefault();
+      // NOTE: never call preventDefault here — a document-level "touchmove"
+      // listener must stay passive or it blocks page scrolling on touch
+      // devices entirely.
     }
 
     function onTouchStart(event) {
@@ -201,8 +203,8 @@ export default function useCanvasCursor() {
       });
 
       document.addEventListener("mousemove", onFirstMove);
-      document.addEventListener("touchstart", onFirstMove);
-      document.body.addEventListener("orientationchange", resizeCanvas);
+      document.addEventListener("touchstart", onFirstMove, { passive: true });
+      window.addEventListener("orientationchange", resizeCanvas);
       window.addEventListener("resize", resizeCanvas);
       window.addEventListener("focus", onFocus);
       window.addEventListener("blur", onBlur);
@@ -221,7 +223,7 @@ export default function useCanvasCursor() {
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("touchmove", onMove);
       document.removeEventListener("touchstart", onTouchStart);
-      document.body.removeEventListener("orientationchange", resizeCanvas);
+      window.removeEventListener("orientationchange", resizeCanvas);
       window.removeEventListener("resize", resizeCanvas);
       window.removeEventListener("focus", onFocus);
       window.removeEventListener("blur", onBlur);

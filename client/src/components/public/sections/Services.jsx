@@ -36,7 +36,7 @@ export default function Services() {
         <motion.span
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={{ once: true, margin: "0px 0px 10% 0px" }}
           transition={{ duration: 0.4 }}
           className="inline-flex items-center rounded-full border border-teal-500/30 bg-teal-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-teal-600 dark:text-teal-400"
         >
@@ -46,7 +46,7 @@ export default function Services() {
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={{ once: true, margin: "0px 0px 10% 0px" }}
           transition={{ duration: 0.5, delay: 0.05 }}
           className="mt-5 font-display text-3xl font-bold tracking-tight md:text-4xl"
         >
@@ -56,7 +56,7 @@ export default function Services() {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={{ once: true, margin: "0px 0px 10% 0px" }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mx-auto mt-4 max-w-2xl leading-relaxed text-ink-muted dark:text-slate-400"
         >
@@ -73,7 +73,7 @@ export default function Services() {
             key={s.id}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
+            viewport={{ once: true, margin: "0px 0px 8% 0px" }}
             transition={{ duration: 0.45, delay: (i % 4) * 0.08 }}
             className="group relative rounded-2xl border border-slate-100 bg-white/80 p-8 text-center shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:border-teal-500/50 hover:shadow-xl hover:shadow-teal-500/10 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-teal-400/50"
           >
@@ -93,7 +93,7 @@ export default function Services() {
             </h3>
 
             {/* Hover reveal summary */}
-            <div className="mt-3 grid grid-rows-[0fr] transition-all duration-300 group-hover:grid-rows-[1fr]">
+            <div className="mt-3 grid grid-rows-[0fr] transition-all duration-300 pointer-coarse:grid-rows-[1fr] group-hover:grid-rows-[1fr]">
               <div className="overflow-hidden">
                 <p className="text-sm leading-relaxed text-ink-muted dark:text-slate-400">
                   {s.description}

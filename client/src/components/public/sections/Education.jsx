@@ -9,7 +9,11 @@ export default function Education() {
   if (!items.length) return null;
 
   return (
-    <Section name="education">
+    <Section
+      id="education"
+      name="education"
+      className="relative z-10 py-20 md:py-32"
+    >
       <SectionHeading eyebrow="Education" title="Education" />
 
       {/* Main Timeline Wrapper with Generous Left Padding */}
@@ -17,10 +21,10 @@ export default function Education() {
         {items.map((edu, i) => (
           <motion.div
             key={edu.id || i}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.45, delay: i * 0.1 }}
+            viewport={{ once: true, margin: "0px 0px 12% 0px" }}
+            transition={{ duration: 0.4, delay: i * 0.1 }}
             className="group relative mb-10 last:mb-0"
           >
             {/* Premium Floating Node Badge (Centered on the line, clear of the card) */}

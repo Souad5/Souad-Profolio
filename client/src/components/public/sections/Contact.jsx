@@ -154,7 +154,7 @@ export default function Contact() {
               className="flex-1"
             >
               <a
-                href="https://calendly.com/souadalkabir/15min"
+                href="https://calendly.com/souadalkabir/portfolio"
                 target="_blank"
                 rel="noopener noreferrer"
               >

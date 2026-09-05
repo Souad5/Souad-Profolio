@@ -37,7 +37,7 @@ export default function ProjectsPage() {
     try {
       await api.duplicate(row.id);
       toast.success("Project duplicated");
-      await qc.invalidateQueries({ queryKey: ["adminProjects"] });
+      await qc.invalidateQueries({ queryKey: ["admin", "adminProjects"] });
     } catch (err) {
       toast.error(err.message || "Failed to duplicate");
     }

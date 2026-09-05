@@ -62,7 +62,7 @@ export default function About() {
         variants={containerAnim}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
+        viewport={{ once: true, margin: "0px 0px 10% 0px" }}
         className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16"
       >
         {/* -------- Photo + floating accent cards (bento ~5 cols) -------- */}
@@ -132,7 +132,7 @@ export default function About() {
             variants={containerAnim}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
+            viewport={{ once: true, margin: "0px 0px 10% 0px" }}
             className="space-y-4"
           >
             {paragraphs.map((para, i) => (
@@ -152,7 +152,7 @@ export default function About() {
               variants={containerAnim}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, margin: "0px 0px 10% 0px" }}
               className="mt-8 grid gap-4 sm:grid-cols-2"
             >
               {highlights.map((h, i) => (
@@ -183,7 +183,7 @@ export default function About() {
               variants={containerAnim}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, margin: "0px 0px 10% 0px" }}
               className="mt-8"
             >
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400">

@@ -133,7 +133,7 @@ export default function SettingsPage() {
 
   async function addSocial() {
     try {
-      const created = (await adminApi.siteSettings.addSocial({ label: "New Link", url: "https://", icon: "FaExternalLinkAlt", order: socials.length, enabled: true })).data;
+      const created = (await adminApi.siteSettings.addSocial({ label: "New Link", url: "https://example.com", icon: "FaExternalLinkAlt", order: socials.length, enabled: false })).data;
       setSocials((prev) => [...prev, created]);
       toast.success("Link added");
       await qc.invalidateQueries({ queryKey: ["settings"] });

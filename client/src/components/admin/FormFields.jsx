@@ -42,7 +42,10 @@ export function Toggle({ checked, onChange, label }) {
 }
 
 export function RadioField({ label, value, onChange, options, className }) {
-  const normalized = !value ? options?.[0]?.value ?? "" : String(value);
+  const normalized =
+    value === undefined || value === null || value === ""
+      ? options?.[0]?.value ?? ""
+      : String(value);
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       {label && <Label>{label}</Label>}

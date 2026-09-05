@@ -3,7 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
 import { useProjects } from "../../../hooks/usePortfolio.js";
-import { Section } from "./Section.jsx";
+import { useIsMobile } from "../../../hooks/use-mobile.js";
 import { AppButton } from "../../ui/app-button.jsx";
 import Icon from "../../ui/Icon.jsx";
 import {
@@ -269,14 +269,22 @@ export default function Projects() {
   const [selected, setSelected] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // The deck/pin experience only makes sense with a wide viewport. On
+  // phones/tablets we render an ordinary stacked card list instead, so the
+  // GSAP scroll-pin never traps content that is taller than the viewport.
+  const isDesktop = !useIsMobile();
+
   const containerRef = useRef(null);
+  const pinRef = useRef(null);
   const cardsContainerRef = useRef(null);
   const scrollTriggerRef = useRef(null);
 
   const count = projects.length;
 
   useEffect(() => {
-    if (!count || !containerRef.current || !cardsContainerRef.current) return;
+    if (!isDesktop) return;
+    if (!count || !containerRef.current || !pinRef.current || !cardsContainerRef.current) return;
+    if (!pinRef.current.offsetHeight) return;
 
     const cards = gsap.utils.toArray(
       cardsContainerRef.current.querySelectorAll(".project-card"),
@@ -309,13 +317,15 @@ export default function Projects() {
 
       const timeline = gsap.timeline({
         scrollTrigger: {
-          trigger: containerRef.current,
+          trigger: pinRef.current,
           start: "top top",
           end: `+=${totalDistance}`,
           pin: true,
+          pinSpacing: true,
           scrub: 0.8,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          refreshPriority: 1,
           onUpdate: (self) => {
             const index = Math.min(
               count - 1,
@@ -364,8 +374,18 @@ export default function Projects() {
       }
     }, containerRef);
 
-    return () => ctx.revert();
-  }, [count]);
+    // Re-measure once all assets settle so the pin-spacer matches real
+    // dimensions instead of a snapshot taken mid-render.
+    const refresh = () => ScrollTrigger.refresh();
+    const refreshTimer = setTimeout(refresh, 500);
+    window.addEventListener("load", refresh);
+
+    return () => {
+      clearTimeout(refreshTimer);
+      window.removeEventListener("load", refresh);
+      ctx.revert();
+    };
+  }, [count, isDesktop]);
 
   const handleProgressClick = (index) => {
     if (!scrollTriggerRef.current) return;
@@ -379,13 +399,49 @@ export default function Projects() {
 
   return (
     <>
-      <Section
+      <section
         ref={containerRef}
+        id="projects"
         name="projects"
-        className="relative flex min-h-screen items-center bg-surface-muted/60 py-0! dark:bg-slate-900/40"
+        className="relative z-20 bg-surface-muted/60 py-20 px-0 dark:bg-slate-900/40 md:py-32"
       >
-        <div className="w-full">
-          <div className="grid w-full grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-14">
+        {/* Mobile/tablet layout — stacked cards, no GSAP pin */}
+        <div className="mx-auto w-full max-w-6xl px-5 lg:hidden sm:px-8">
+          <div className="mb-10">
+            <p className="eyebrow">Selected work</p>
+            <h2 className="section-title">
+              Work{" "}
+              <span className="text-brand-600 dark:text-brand-400">
+                ({count})
+              </span>
+            </h2>
+            <p className="mt-3 max-w-md leading-relaxed text-ink-muted dark:text-slate-400">
+              A selection of things I&apos;ve built.
+            </p>
+          </div>
+          <div className="flex flex-col gap-6">
+            {projects.map((project, index) => (
+              <div
+                key={project.id || index}
+                className="relative h-[440px] w-full"
+              >
+                <ProjectCard
+                  project={project}
+                  index={index}
+                  total={count}
+                  onOpen={setSelected}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop layout — pinned GSAP deck */}
+        <div
+          ref={pinRef}
+          className="relative z-20 hidden items-center bg-surface-muted/60 px-5 sm:px-8 lg:flex lg:min-h-screen dark:bg-slate-900/40"
+        >
+          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-14">
             {/* Sidebar */}
             <div className="lg:col-span-4">
               <motion.div
@@ -462,7 +518,7 @@ export default function Projects() {
             </div>
           </div>
         </div>
-      </Section>
+      </section>
 
       {selected && (
         <ProjectDetailModal

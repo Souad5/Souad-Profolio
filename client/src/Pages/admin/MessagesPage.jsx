@@ -42,6 +42,8 @@ export default function MessagesPage() {
         prev && prev.id === msg.id ? { ...prev, read: true } : prev,
       );
       await qc.invalidateQueries({ queryKey: ["messages"] });
+      await qc.invalidateQueries({ queryKey: ["admin-messages"] });
+      await qc.invalidateQueries({ queryKey: ["admin-stats"] });
     } catch (e) {
       toast.error(e.message || "Failed to update");
     }
@@ -54,6 +56,8 @@ export default function MessagesPage() {
       setSelected((prev) => (prev && prev.id === deleting.id ? null : prev));
       setDeleting(null);
       await qc.invalidateQueries({ queryKey: ["messages"] });
+      await qc.invalidateQueries({ queryKey: ["admin-messages"] });
+      await qc.invalidateQueries({ queryKey: ["admin-stats"] });
     } catch (e) {
       toast.error(e.message || "Failed to delete");
     }

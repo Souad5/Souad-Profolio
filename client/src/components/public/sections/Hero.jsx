@@ -263,10 +263,10 @@ export default function Hero() {
 
         {/* 2. Giant two-line role text (word-level spans for the stagger) */}
         <h1 className="mt-6 w-full font-display text-brand-600 dark:text-brand-400">
-          <span className="hero-line block whitespace-nowrap text-[clamp(2.25rem,9.5vw,6.5rem)] leading-[0.95] font-extrabold uppercase tracking-[0.02em]">
+          <span className="hero-line block whitespace-nowrap text-[clamp(2rem,9vw,6.5rem)] leading-[0.95] font-extrabold uppercase tracking-[0.02em]">
             <RoleWords text={line1} />
           </span>
-          <span className={`hero-line block whitespace-nowrap text-[clamp(2.25rem,9.5vw,6.5rem)] leading-[0.95] font-extrabold uppercase tracking-[0.02em] mt-2`}>
+          <span className={`hero-line block whitespace-nowrap text-[clamp(2rem,9vw,6.5rem)] leading-[0.95] font-extrabold uppercase tracking-[0.02em] mt-2`}>
             <RoleWords text={line2} />
           </span>
         </h1>
