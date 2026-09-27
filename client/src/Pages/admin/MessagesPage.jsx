@@ -44,6 +44,7 @@ export default function MessagesPage() {
       await qc.invalidateQueries({ queryKey: ["messages"] });
       await qc.invalidateQueries({ queryKey: ["admin-messages"] });
       await qc.invalidateQueries({ queryKey: ["admin-stats"] });
+      await qc.invalidateQueries({ queryKey: ["stats"] });
     } catch (e) {
       toast.error(e.message || "Failed to update");
     }
@@ -58,6 +59,7 @@ export default function MessagesPage() {
       await qc.invalidateQueries({ queryKey: ["messages"] });
       await qc.invalidateQueries({ queryKey: ["admin-messages"] });
       await qc.invalidateQueries({ queryKey: ["admin-stats"] });
+      await qc.invalidateQueries({ queryKey: ["stats"] });
     } catch (e) {
       toast.error(e.message || "Failed to delete");
     }

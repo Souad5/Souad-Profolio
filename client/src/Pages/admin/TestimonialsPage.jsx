@@ -30,9 +30,9 @@ export default function TestimonialsPage() {
         { name: "company", label: "Company" },
         { name: "content", label: "Testimonial", type: "textarea", rows: 4, required: true },
         { name: "avatar", label: "Avatar URL", type: "image" },
-        { name: "rating", label: "Rating (0-5)", type: "number" },
+        { name: "rating", label: "Rating (0-5)", type: "number", min: 0, max: 5 },
         { name: "featured", label: "Featured", type: "boolean" },
-        { name: "order", label: "Order", type: "number" },
+        { name: "order", label: "Order", type: "number", min: 0 },
         { name: "enabled", label: "Enabled", type: "boolean" },
       ]}
       emptyMessage="No testimonials yet"

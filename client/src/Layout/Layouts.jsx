@@ -3,9 +3,12 @@ import { createBrowserRouter } from "react-router";
 import App from "../App";
 import Home from "../Pages/Home";
 import NotFound from "../Pages/NotFound";
-import LoginPage from "../Pages/admin/LoginPage";
-import AdminLayout from "../components/admin/AdminLayout";
 import ProtectedRoute from "../components/admin/ProtectedRoute";
+
+// Admin shell + login are split out too, so none of the admin UI (sidebar,
+// Radix menus/tooltips, etc.) ships in the public portfolio bundle.
+const LoginPage = lazy(() => import("../Pages/admin/LoginPage"));
+const AdminLayout = lazy(() => import("../components/admin/AdminLayout"));
 
 const DashboardPage = lazy(() => import("../Pages/admin/DashboardPage"));
 const SettingsPage = lazy(() => import("../Pages/admin/SettingsPage"));
@@ -45,14 +48,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin/login",
-    element: <LoginPage />,
+    element: withSuspense(<LoginPage />),
   },
   {
     path: "/admin",
     element: (
-      <ProtectedRoute>
-        <AdminLayout />
-      </ProtectedRoute>
+      <ProtectedRoute>{withSuspense(<AdminLayout />)}</ProtectedRoute>
     ),
     errorElement: <NotFound />,
     children: [

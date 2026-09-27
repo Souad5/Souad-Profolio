@@ -11,9 +11,9 @@ const baseStyles =
 
 const variants = {
   primary:
-    "bg-brand-600 text-white shadow-[0_4px_16px_rgba(79,70,229,0.25)] hover:bg-brand-700 dark:bg-brand-400 dark:text-ink dark:hover:bg-brand-300",
+    "bg-brand-600 text-white shadow-[0_4px_16px_rgba(4,127,88,0.25)] hover:bg-brand-700 dark:bg-brand-400 dark:text-slate-950 dark:shadow-[0_4px_18px_rgba(52,211,153,0.25)] dark:hover:bg-brand-300",
   secondary:
-    "bg-slate-900 text-white shadow-[0_2px_8px_rgba(15,23,42,0.2)] hover:bg-slate-800 dark:bg-slate-200 dark:text-ink dark:hover:bg-slate-300",
+    "bg-slate-900 text-white shadow-[0_2px_8px_rgba(15,23,42,0.2)] hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300",
   outline:
     "border border-slate-300 bg-surface text-ink hover:border-brand-500 hover:bg-brand-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-brand-400 dark:hover:bg-slate-800/80 dark:hover:text-white",
   ghost:
@@ -37,6 +37,7 @@ const sizes = {
  * Variants/sizes mirror the AcademiaButton reference, colors use the
  * brand palette. Adds `isLoading`/`loading` (spinner + disabled),
  * `leftIcon`/`rightIcon` conveniences and press feedback via whileTap.
+ * `shine` adds a light sweep across the surface on hover (button only).
  * `asChild` renders a Slot onto a single child (anchor/Link) — no motion.
  */
 const AppButton = forwardRef(function AppButton(
@@ -47,6 +48,7 @@ const AppButton = forwardRef(function AppButton(
     loading = false,
     leftIcon: LeftIcon,
     rightIcon: RightIcon,
+    shine = false,
     className,
     children,
     disabled,
@@ -65,6 +67,7 @@ const AppButton = forwardRef(function AppButton(
     variants[variant],
     sizes[size],
     busy && asChild && "pointer-events-none opacity-50 select-none",
+    shine && "relative overflow-hidden",
     className
   )
 
@@ -90,6 +93,12 @@ const AppButton = forwardRef(function AppButton(
       className={classes}
       {...props}
     >
+      {shine && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+        />
+      )}
       {busy ? (
         <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
       ) : LeftIcon ? (
@@ -97,7 +106,7 @@ const AppButton = forwardRef(function AppButton(
       ) : null}
 
       {children && (
-        <span className="inline-flex items-center gap-2 truncate">{children}</span>
+        <span className="relative inline-flex items-center gap-2 truncate">{children}</span>
       )}
 
       {!busy && RightIcon && (

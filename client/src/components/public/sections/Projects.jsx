@@ -1,151 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
-import { useProjects } from "../../../hooks/usePortfolio.js";
+import { useProjects, useSiteSettings } from "../../../hooks/usePortfolio.js";
 import { useIsMobile } from "../../../hooks/use-mobile.js";
-import { AppButton } from "../../ui/app-button.jsx";
 import Icon from "../../ui/Icon.jsx";
-import {
-  FaGithub,
-  FaExternalLinkAlt,
-  FaTimes,
-  FaArrowRight,
-} from "react-icons/fa";
+import { TechChips } from "../../ui/tech-chips.jsx";
+import { FaGithub, FaExternalLinkAlt, FaArrowRight } from "react-icons/fa";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* -------------------------------------------------------------------------- */
-/* Project Detail Modal                                                       */
-/* -------------------------------------------------------------------------- */
-
-function ProjectDetailModal({ project, onClose }) {
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
-    >
-      <div
-        className="relative my-8 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-surface shadow-2xl dark:bg-slate-900"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close project details"
-          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition hover:bg-black/60"
-        >
-          <FaTimes />
-        </button>
-
-        {project.thumbnail ? (
-          <img
-            src={project.thumbnail}
-            alt={project.title}
-            className="aspect-video w-full object-cover"
-          />
-        ) : (
-          <div className="flex aspect-video w-full items-center justify-center bg-slate-100 dark:bg-slate-800">
-            <Icon name="FaImage" className="text-5xl text-ink-muted" />
-          </div>
-        )}
-
-        <div className="p-6 md:p-8">
-          <div className="mb-6">
-            <p className="mb-2 text-sm font-medium uppercase tracking-widest text-brand-600 dark:text-brand-400">
-              Project
-            </p>
-            <h3 className="font-display text-3xl font-bold md:text-4xl">
-              {project.title}
-            </h3>
-          </div>
-
-          <p className="leading-relaxed text-ink-muted dark:text-slate-300">
-            {project.description}
-          </p>
-
-          {Array.isArray(project.technologies) &&
-            project.technologies.length > 0 && (
-              <div className="mt-6">
-                <h4 className="mb-3 font-semibold">Technologies</h4>
-                <div className="flex flex-wrap gap-2">
-                  {project.technologies.map((technology, index) => (
-                    <span
-                      key={`${technology}-${index}`}
-                      className="rounded-full bg-brand-600/10 px-3 py-1.5 text-xs font-medium text-brand-600 dark:bg-brand-400/10 dark:text-brand-400"
-                    >
-                      {technology}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-          {project.challenges && (
-            <div className="mt-7">
-              <h4 className="font-semibold">Challenges</h4>
-              <p className="mt-2 text-sm leading-relaxed text-ink-muted dark:text-slate-300">
-                {project.challenges}
-              </p>
-            </div>
-          )}
-
-          {project.improvements && (
-            <div className="mt-6">
-              <h4 className="font-semibold">Improvements</h4>
-              <p className="mt-2 text-sm leading-relaxed text-ink-muted dark:text-slate-300">
-                {project.improvements}
-              </p>
-            </div>
-          )}
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            {project.liveUrl && (
-              <AppButton asChild>
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaExternalLinkAlt /> Live Demo
-                </a>
-              </AppButton>
-            )}
-
-            {project.githubUrl && (
-              <AppButton asChild variant="outline">
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaGithub /> Source Code
-                </a>
-              </AppButton>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// The details dialog (and the Radix dialog code behind it) is only needed
+// once someone opens a project, so it ships as its own chunk.
+const ProjectDetailModal = lazy(() => import("../ProjectDetailModal.jsx"));
 
 /* -------------------------------------------------------------------------- */
 /* Project Card                                                               */
@@ -154,7 +21,7 @@ function ProjectDetailModal({ project, onClose }) {
 function ProjectCard({ project, index, total, onOpen }) {
   return (
     <article
-      className="project-card absolute inset-0 overflow-hidden rounded-[28px] border border-slate-200 bg-surface shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+      className="project-card absolute inset-0 overflow-hidden rounded-[28px] border border-slate-200 bg-slate-950 shadow-2xl dark:border-slate-700"
       style={{
         zIndex: total - index,
         transformOrigin: "center bottom",
@@ -167,22 +34,32 @@ function ProjectCard({ project, index, total, onOpen }) {
         aria-label={`View ${project.title} details`}
       >
         <div className="relative h-full overflow-hidden">
-          {project.thumbnail ? (
-            <img
-              src={project.thumbnail}
-              alt={project.title}
-              className="project-image absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800">
-              <Icon
-                name="FaImage"
-                className="text-6xl text-ink-muted dark:text-slate-500"
+          {/* Screenshots are wide (~2.2:1) desktop captures: show them in a 2:1
+              band across the top (anchored to the page's top) instead of
+              cropping a tall middle slice, and keep the text on the dark
+              panel below so it never sits on busy image content. */}
+          <div className="absolute inset-x-0 top-0 aspect-2/1 overflow-hidden">
+            {project.thumbnail ? (
+              <img
+                src={project.thumbnail}
+                alt={`${project.title} screenshot`}
+                width={1600}
+                height={800}
+                loading="lazy"
+                decoding="async"
+                className="project-image h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               />
-            </div>
-          )}
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-slate-800">
+                <Icon name="FaImage" className="text-6xl text-slate-500" />
+              </div>
+            )}
+            {/* Fade the screenshot into the panel */}
+            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-slate-950 to-transparent" />
+          </div>
 
-          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent" />
+          {/* Soft brand glow behind the text panel */}
+          <div className="pointer-events-none absolute -bottom-24 left-1/2 h-48 w-3/4 -translate-x-1/2 rounded-full bg-brand-500/15 blur-3xl" />
 
           <div className="absolute left-5 right-5 top-5 flex items-start justify-between md:left-7 md:right-7 md:top-7">
             <span className="rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
@@ -198,31 +75,19 @@ function ProjectCard({ project, index, total, onOpen }) {
           <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8">
             <div className="flex items-end justify-between gap-5">
               <div className="max-w-2xl">
-                <h3 className="font-display text-2xl font-bold tracking-tight text-white md:text-4xl lg:text-5xl">
+                <h3 className="text-balance font-display text-2xl font-bold leading-tight tracking-tight text-white md:text-4xl">
                   {project.title}
                 </h3>
 
-                <p className="mt-3 line-clamp-2 max-w-xl text-sm leading-relaxed text-white/80 md:text-base">
+                <p className="mt-2 line-clamp-2 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">
                   {project.shortDescription || project.description}
                 </p>
 
-                {Array.isArray(project.technologies) &&
-                  project.technologies.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {project.technologies.slice(0, 5).map((technology, i) => (
-                        <span
-                          key={`${technology}-${i}`}
-                          className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-white backdrop-blur-sm"
-                        >
-                          {technology}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                <TechChips items={project.technologies} variant="glass" max={5} className="mt-4" />
               </div>
 
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-black transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 md:h-14 md:w-14">
-                <FaArrowRight />
+                <FaArrowRight aria-hidden="true" />
               </span>
             </div>
           </div>
@@ -239,7 +104,7 @@ function ProjectCard({ project, index, total, onOpen }) {
             onClick={(e) => e.stopPropagation()}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/30 text-white backdrop-blur-md transition hover:bg-white hover:text-black"
           >
-            <FaGithub />
+            <FaGithub aria-hidden="true" />
           </a>
         )}
 
@@ -252,7 +117,7 @@ function ProjectCard({ project, index, total, onOpen }) {
             onClick={(e) => e.stopPropagation()}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/30 text-white backdrop-blur-md transition hover:bg-white hover:text-black"
           >
-            <FaExternalLinkAlt />
+            <FaExternalLinkAlt aria-hidden="true" />
           </a>
         )}
       </div>
@@ -266,7 +131,25 @@ function ProjectCard({ project, index, total, onOpen }) {
 
 export default function Projects() {
   const { data: projects = [] } = useProjects();
+  const { data: settings } = useSiteSettings();
+  // "More on GitHub" points at the GitHub profile from the social links.
+  const githubProfile = settings?.socialLinks?.find(
+    (l) => l?.icon === "FaGithub" || /github/i.test(l?.label || l?.url || ""),
+  )?.url;
   const [selected, setSelected] = useState(null);
+  const [modalProject, setModalProject] = useState(null);
+  // Return keyboard focus to whatever opened the dialog once it closes (the
+  // dialog unmounts after its exit animation, so Radix can't do it reliably).
+  const openerRef = useRef(null);
+  const openProject = useCallback((project) => {
+    openerRef.current = document.activeElement;
+    setModalProject(project);
+    setSelected(project);
+  }, []);
+  const closeProject = useCallback(() => {
+    setSelected(null);
+    setTimeout(() => openerRef.current?.focus?.({ preventScroll: true }), 350);
+  }, []);
   const [activeIndex, setActiveIndex] = useState(0);
 
   // The deck/pin experience only makes sense with a wide viewport. On
@@ -278,12 +161,19 @@ export default function Projects() {
   const pinRef = useRef(null);
   const cardsContainerRef = useRef(null);
   const scrollTriggerRef = useRef(null);
+  const timelineRef = useRef(null);
 
   const count = projects.length;
 
   useEffect(() => {
     if (!isDesktop) return;
-    if (!count || !containerRef.current || !pinRef.current || !cardsContainerRef.current) return;
+    if (
+      !count ||
+      !containerRef.current ||
+      !pinRef.current ||
+      !cardsContainerRef.current
+    )
+      return;
     if (!pinRef.current.offsetHeight) return;
 
     const cards = gsap.utils.toArray(
@@ -313,9 +203,21 @@ export default function Projects() {
         }
       });
 
-      const totalDistance = Math.max(count * 600, 2000);
+      // Each card-to-card move takes MOVE of a 1-unit step; the remainder is a
+      // short rest so every card settles before the next one arrives. The
+      // timeline is exactly (count - 1) units long.
+      const MOVE = 0.7;
+      const totalDistance = Math.max((cards.length - 1) * 450, 1200);
 
       const timeline = gsap.timeline({
+        // Derive the active card from the (scrubbed) timeline time so the
+        // counter changes exactly when a card visually takes the front —
+        // halfway through its move — rather than from raw scroll progress.
+        onUpdate() {
+          const t = this.time();
+          const index = t < MOVE / 2 ? 0 : Math.floor(t - MOVE / 2) + 1;
+          setActiveIndex(Math.min(cards.length - 1, index));
+        },
         scrollTrigger: {
           trigger: pinRef.current,
           start: "top top",
@@ -326,17 +228,11 @@ export default function Projects() {
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: 1,
-          onUpdate: (self) => {
-            const index = Math.min(
-              count - 1,
-              Math.floor(self.progress * count),
-            );
-            setActiveIndex(index);
-          },
         },
       });
 
       scrollTriggerRef.current = timeline.scrollTrigger;
+      timelineRef.current = { duration: cards.length - 1, move: MOVE };
 
       // Animate card stack logic
       for (let i = 0; i < cards.length - 1; i++) {
@@ -346,13 +242,13 @@ export default function Projects() {
 
         timeline.to(
           current,
-          { y: -100, scale: 0.9, opacity: 0, ease: "power1.inOut" },
+          { y: -100, scale: 0.9, opacity: 0, ease: "power1.inOut", duration: MOVE },
           start,
         );
 
         timeline.to(
           next,
-          { y: 0, scale: 1, opacity: 1, ease: "power1.inOut" },
+          { y: 0, scale: 1, opacity: 1, ease: "power1.inOut", duration: MOVE },
           start,
         );
 
@@ -367,32 +263,53 @@ export default function Projects() {
               scale: outOfDeck ? 0.85 : deckScale(depth),
               opacity: outOfDeck ? 0 : deckOpacity(depth),
               ease: "power1.inOut",
+              duration: MOVE,
             },
             start,
           );
         }
       }
+      // Pad to a whole unit so the last card also gets its rest.
+      timeline.to({}, { duration: 1 - MOVE }, cards.length - 2 + MOVE);
     }, containerRef);
 
-    // Re-measure once all assets settle so the pin-spacer matches real
-    // dimensions instead of a snapshot taken mid-render.
-    const refresh = () => ScrollTrigger.refresh();
-    const refreshTimer = setTimeout(refresh, 500);
+    // Re-measure whenever the page height changes. Sections above load
+    // their data independently (and images/fonts arrive late), so a one-off
+    // refresh could leave the pin's start position stale — which is what
+    // makes the pinned deck overlap neighbouring sections. The height guard
+    // stops the pin-spacer's own resize from triggering another refresh.
+    let lastHeight = 0;
+    let debounce = 0;
+    const refresh = () => {
+      ScrollTrigger.refresh();
+      lastHeight = document.documentElement.scrollHeight;
+    };
+    const scheduleRefresh = () => {
+      if (Math.abs(document.documentElement.scrollHeight - lastHeight) < 2) return;
+      clearTimeout(debounce);
+      debounce = setTimeout(refresh, 150);
+    };
+    const resizeObserver = new ResizeObserver(scheduleRefresh);
+    resizeObserver.observe(document.body);
     window.addEventListener("load", refresh);
+    document.fonts?.ready.then(scheduleRefresh);
 
     return () => {
-      clearTimeout(refreshTimer);
+      clearTimeout(debounce);
+      resizeObserver.disconnect();
       window.removeEventListener("load", refresh);
       ctx.revert();
     };
   }, [count, isDesktop]);
 
   const handleProgressClick = (index) => {
-    if (!scrollTriggerRef.current) return;
     const st = scrollTriggerRef.current;
-    const targetScroll =
-      st.start + (st.end - st.start) * (index / (count - 1 || 1));
-    window.scrollTo({ top: targetScroll, behavior: "smooth" });
+    const tl = timelineRef.current;
+    if (!st || !tl) return;
+    // Card N is fully in front at the end of its move.
+    const time = index === 0 ? 0 : index - 1 + tl.move;
+    const progress = tl.duration ? time / tl.duration : 0;
+    window.scrollTo({ top: st.start + (st.end - st.start) * progress, behavior: "smooth" });
   };
 
   if (!count) return null;
@@ -403,7 +320,7 @@ export default function Projects() {
         ref={containerRef}
         id="projects"
         name="projects"
-        className="relative z-20 bg-surface-muted/60 py-20 px-0 dark:bg-slate-900/40 md:py-32"
+        className="relative z-20 bg-surface-muted/60 px-0 py-16 sm:py-20 lg:py-0 dark:bg-slate-900/40"
       >
         {/* Mobile/tablet layout — stacked cards, no GSAP pin */}
         <div className="mx-auto w-full max-w-6xl px-5 lg:hidden sm:px-8">
@@ -421,15 +338,12 @@ export default function Projects() {
           </div>
           <div className="flex flex-col gap-6">
             {projects.map((project, index) => (
-              <div
-                key={project.id || index}
-                className="relative h-[440px] w-full"
-              >
+              <div key={project.id || index} className="relative h-104 w-full">
                 <ProjectCard
                   project={project}
                   index={index}
                   total={count}
-                  onOpen={setSelected}
+                  onOpen={openProject}
                 />
               </div>
             ))}
@@ -439,7 +353,7 @@ export default function Projects() {
         {/* Desktop layout — pinned GSAP deck */}
         <div
           ref={pinRef}
-          className="relative z-20 hidden items-center bg-surface-muted/60 px-5 sm:px-8 lg:flex lg:min-h-screen dark:bg-slate-900/40"
+          className="relative z-20 hidden items-center bg-surface-muted/60 px-5 pt-16 sm:px-8 lg:flex lg:min-h-screen dark:bg-slate-900/40"
         >
           <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-14">
             {/* Sidebar */}
@@ -467,8 +381,8 @@ export default function Projects() {
                   <span className="font-display text-2xl font-semibold text-brand-600 dark:text-brand-400">
                     {String(activeIndex + 1).padStart(2, "0")}
                   </span>
-                  <span className="text-ink-muted dark:text-slate-600">/</span>
-                  <span className="text-sm text-ink-muted dark:text-slate-500">
+                  <span aria-hidden="true" className="text-ink-muted dark:text-slate-500">/</span>
+                  <span className="text-sm text-ink-muted dark:text-slate-400">
                     {String(count).padStart(2, "0")}
                   </span>
                 </div>
@@ -489,13 +403,18 @@ export default function Projects() {
                   ))}
                 </div>
 
-                <a
-                  href="#projects"
-                  className="group mt-8 inline-flex items-center gap-3 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-medium transition hover:border-brand-500 hover:text-brand-600 dark:border-slate-700 dark:hover:border-brand-400 dark:hover:text-brand-400"
-                >
-                  View all work
-                  <FaArrowRight className="text-xs transition-transform group-hover:translate-x-1" />
-                </a>
+                {githubProfile && (
+                  <a
+                    href={githubProfile}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group mt-8 inline-flex items-center gap-3 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-medium transition hover:border-brand-500 hover:text-brand-600 dark:border-slate-700 dark:hover:border-brand-400 dark:hover:text-brand-400"
+                  >
+                    <FaGithub />
+                    More on GitHub
+                    <FaArrowRight className="text-xs transition-transform group-hover:translate-x-1" />
+                  </a>
+                )}
               </motion.div>
             </div>
 
@@ -511,7 +430,7 @@ export default function Projects() {
                     project={project}
                     index={index}
                     total={count}
-                    onOpen={setSelected}
+                    onOpen={openProject}
                   />
                 ))}
               </div>
@@ -520,11 +439,15 @@ export default function Projects() {
         </div>
       </section>
 
-      {selected && (
-        <ProjectDetailModal
-          project={selected}
-          onClose={() => setSelected(null)}
-        />
+      {/* Stays mounted after the first open so the dialog can animate out. */}
+      {modalProject && (
+        <Suspense fallback={null}>
+          <ProjectDetailModal
+            project={modalProject}
+            open={!!selected}
+            onClose={closeProject}
+          />
+        </Suspense>
       )}
     </>
   );

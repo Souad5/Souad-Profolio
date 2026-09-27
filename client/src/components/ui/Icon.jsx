@@ -43,6 +43,7 @@ import {
 import { SiMongodb, SiExpress, SiViblo, SiPostgresql, SiTypescript, SiPython, SiTailwindcss } from "react-icons/si";
 import { MdEmail } from "react-icons/md";
 import { RiNextjsFill } from "react-icons/ri";
+import { VscVscode } from "react-icons/vsc";
 import {
   Layout,
   Target,
@@ -105,6 +106,7 @@ const REGISTRY = {
   SiTailwindcss,
   MdEmail,
   RiNextjsFill,
+  VscVscode,
   Layout,
   Target,
   ShieldCheck,

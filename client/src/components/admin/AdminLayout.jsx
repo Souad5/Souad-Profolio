@@ -34,7 +34,9 @@ export default function AdminLayout() {
       ref={rootRef}
       data-admin-theme={resolvedTheme}
       data-admin-font-scale={prefs.fontScale}
-      className={cn("min-h-svh", resolvedTheme === "dark" && "dark")}
+      // Own text/background: without them the panel inherits the public
+      // <body> colours, e.g. dark table text on the dark admin theme.
+      className={cn("min-h-svh bg-background text-foreground", resolvedTheme === "dark" && "dark")}
     >
       <TooltipProvider>
         <SidebarProvider

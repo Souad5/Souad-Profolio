@@ -43,10 +43,10 @@ export default function SkillsPage() {
       columns={columns}
       fields={[
         { name: "name", label: "Skill Name", required: true },
-        { name: "level", label: "Level (0-100)", type: "number" },
+        { name: "level", label: "Level (0-100)", type: "number", min: 0, max: 100 },
         { name: "icon", label: "Icon", hint: "react-icons name, e.g. FaReact, FaHtml5, SiMongodb" },
         { name: "categoryId", label: "Category", type: "select", required: true, default: categories[0]?.id, options: categories.map((c) => ({ value: c.id, label: c.name })) },
-        { name: "order", label: "Order", type: "number" },
+        { name: "order", label: "Order", type: "number", min: 0 },
         { name: "enabled", label: "Enabled", type: "boolean" },
       ]}
       emptyMessage="No skills yet"

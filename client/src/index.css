@@ -16,13 +16,15 @@
 @custom-variant dark (&:where(.dark, .dark *, [data-admin-theme="dark"], [data-admin-theme="dark"] *):not([data-admin-theme="light"] *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Original Surfer (Google Fonts, loaded in index.html) ships a single 400
+     weight, so faux-bold synthesis is disabled below to keep it crisp. */
+  --font-sans: "Original Surfer", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Original Surfer", ui-sans-serif, system-ui, sans-serif;
 
   --color-surface: #ffffff;
   --color-surface-muted: #f6f7f9;
   --color-ink: #0f172a;
-  --color-ink-muted: #64748b;
+  --color-ink-muted: #5b6b7f;
 
   --color-brand-50: #ecfdf5;
   --color-brand-100: #d1fae5;
@@ -30,8 +32,9 @@
   --color-brand-300: #6ee7b7;
   --color-brand-400: #34d399;
   --color-brand-500: #10b981;
-  --color-brand-600: #059669;
-  --color-brand-700: #047857;
+  /* 600 is the text/button green: #047f58 = 5.0:1 on white (WCAG AA). */
+  --color-brand-600: #047f58;
+  --color-brand-700: #036a4a;
 }
 
 /* Dark-ish tokens used by the app (duplicated as CSS vars for base styles) */
@@ -44,12 +47,12 @@
   --card-foreground: #0f172a;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
-  --primary: #059669;
+  --primary: #047f58;
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
   --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  --muted-foreground: #5b6b7f;
   --accent: #ecfdf5;
   --accent-foreground: #047857;
   --destructive: #ef4444;
@@ -73,7 +76,7 @@
   --color-surface: #ffffff;
   --color-surface-muted: #f6f7f9;
   --color-ink: #0f172a;
-  --color-ink-muted: #64748b;
+  --color-ink-muted: #5b6b7f;
 }
 .dark {
   --app-bg: #0b1120;
@@ -84,7 +87,7 @@
   --card-foreground: #e2e8f0;
   --popover: #0f172a;
   --popover-foreground: #e2e8f0;
-  --primary: #818cf8;
+  --primary: #34d399;
   --primary-foreground: #0f172a;
   --secondary: #1e293b;
   --secondary-foreground: #e2e8f0;
@@ -115,14 +118,39 @@
   --color-ink-muted: #94a3b8;
 }
 
-/* daisyUI accent: keep toggles/radios/ranges on the emerald brand */
+/* daisyUI palette, bound to the app's own theme tokens so daisy components
+   (table, alert/toast, toggle, select, loading, modal) follow light/dark —
+   including the admin's own theme. Without the base/content mapping daisy
+   stayed on its light palette, e.g. dark table text on the dark admin. */
 :root {
   --color-primary: oklch(0.514 0.103 160.14);
   --color-primary-content: oklch(0.982 0.018 155.826);
+  --color-error: #dc2626;
+  --color-error-content: #ffffff;
+  --color-success: #047f58;
+  --color-success-content: #ffffff;
+  --color-warning: #fef3c7;
+  --color-warning-content: #78350f;
 }
 .dark {
   --color-primary: oklch(0.696 0.17 162.48);
   --color-primary-content: oklch(0.128 0.035 160);
+  --color-error: #f87171;
+  --color-error-content: #1f0a0a;
+  --color-success: #34d399;
+  --color-success-content: #022c22;
+  --color-warning: #fbbf24;
+  --color-warning-content: #1f1300;
+}
+/* Re-declared on every theme root: a var() reference resolves where it is
+   declared, so declaring it on :root alone would freeze the light values. */
+:root,
+.dark,
+[data-admin-theme] {
+  --color-base-100: var(--background);
+  --color-base-200: var(--muted);
+  --color-base-300: var(--border);
+  --color-base-content: var(--foreground);
 }
 
 /*
@@ -138,12 +166,12 @@
   --card-foreground: #0f172a;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
-  --primary: #059669;
+  --primary: #047f58;
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
   --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  --muted-foreground: #5b6b7f;
   --accent: #ecfdf5;
   --accent-foreground: #047857;
   --border: #e2e8f0;
@@ -159,7 +187,7 @@
   --color-surface: #ffffff;
   --color-surface-muted: #f6f7f9;
   --color-ink: #0f172a;
-  --color-ink-muted: #64748b;
+  --color-ink-muted: #5b6b7f;
 }
 [data-admin-theme="dark"] {
   --background: #0b1120;
@@ -199,6 +227,15 @@
  * utilities) and reacts live, and is scoped to the admin root so the public
  * site is never affected.
  */
+/* The admin dashboard keeps a neutral system sans for dense tables/forms;
+   the Original Surfer display font is for the public portfolio only. */
+[data-admin-theme] {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-sans);
+  font-family: var(--font-sans);
+  font-synthesis-weight: auto;
+}
+
 [data-admin-font-scale="sm"] { zoom: 0.875; }
 [data-admin-font-scale="md"] { zoom: 1; }
 [data-admin-font-scale="lg"] { zoom: 1.1; }
@@ -221,9 +258,31 @@ html {
 body {
   margin: 0;
   font-family: var(--font-sans);
+  font-synthesis-weight: none;
   background-color: var(--app-bg);
   color: var(--app-fg);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Theme toggle: circular reveal via the View Transitions API (see
+   toggleTheme in context/ThemeContext.jsx). Disable the default cross-fade so
+   only the clip-path circle animates. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* The incoming theme is the expanding circle in both directions, so its
+   snapshot must sit above the outgoing one whether we're switching to dark
+   or to light. */
+html[data-theme-transition="dark"]::view-transition-old(root),
+html[data-theme-transition="light"]::view-transition-old(root) {
+  z-index: 1;
+}
+html[data-theme-transition="dark"]::view-transition-new(root),
+html[data-theme-transition="light"]::view-transition-new(root) {
+  z-index: 9999;
 }
 
 /* Respect reduced motion */
@@ -238,11 +297,15 @@ body {
   }
 }
 
-/* Focus visibility for accessibility */
+/* Focus visibility for accessibility (>= 3:1 against both themes) */
 :focus-visible {
-  outline: 2px solid var(--color-brand-500);
+  outline: 2px solid var(--color-brand-600);
   outline-offset: 2px;
   border-radius: 4px;
+}
+.dark :focus-visible,
+[data-admin-theme="dark"] :focus-visible {
+  outline-color: var(--color-brand-400);
 }
 
 /* Prevent layout shift for lazy images */

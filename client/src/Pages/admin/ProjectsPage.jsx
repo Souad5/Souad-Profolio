@@ -37,7 +37,11 @@ export default function ProjectsPage() {
     try {
       await api.duplicate(row.id);
       toast.success("Project duplicated");
-      await qc.invalidateQueries({ queryKey: ["admin", "adminProjects"] });
+      await Promise.all(
+        [["admin", "adminProjects"], ["projects"], ["stats"], ["admin-stats"]].map((queryKey) =>
+          qc.invalidateQueries({ queryKey })
+        )
+      );
     } catch (err) {
       toast.error(err.message || "Failed to duplicate");
     }
@@ -48,6 +52,7 @@ export default function ProjectsPage() {
       title="Projects"
       subtitle="Add, edit, and publish projects shown on the portfolio"
       queryKey="adminProjects"
+      publicKeys={[["projects"]]}
       api={{
         list: (p) => api.list(p),
         create: (d) => api.create(d),
@@ -68,7 +73,7 @@ export default function ProjectsPage() {
         { name: "improvements", label: "Improvements / Future Plans", type: "textarea", rows: 2 },
         { name: "featured", label: "Featured", type: "boolean" },
         { name: "published", label: "Published", type: "boolean" },
-        { name: "order", label: "Order", type: "number" },
+        { name: "order", label: "Order", type: "number", min: 0 },
       ]}
       onDuplicate={handleDuplicate}
       duplicateLabel="Duplicate"

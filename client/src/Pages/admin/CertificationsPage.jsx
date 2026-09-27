@@ -25,7 +25,7 @@ export default function CertificationsPage() {
         { name: "year", label: "Year" },
         { name: "link", label: "Credential URL" },
         { name: "image", label: "Image URL", type: "image" },
-        { name: "order", label: "Order", type: "number" },
+        { name: "order", label: "Order", type: "number", min: 0 },
         { name: "enabled", label: "Enabled", type: "boolean" },
       ]}
       emptyMessage="No certifications yet"

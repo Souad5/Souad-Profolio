@@ -12,6 +12,29 @@ export function formatDate(dateStr) {
   return d.toLocaleDateString(undefined, { year: "numeric", month: "short" });
 }
 
+// Whole calendar months covered by a range, counted inclusively the way
+// LinkedIn does (Dec 2025 – Apr 2026 = 5 months). A missing end means "now".
+// Uses UTC so date-only values stored at 00:00Z don't shift a month in
+// western time zones.
+export function monthsBetween(start, end) {
+  const s = new Date(start);
+  const e = end ? new Date(end) : new Date();
+  if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return 0;
+  const months =
+    (e.getUTCFullYear() - s.getUTCFullYear()) * 12 + (e.getUTCMonth() - s.getUTCMonth()) + 1;
+  return Math.max(0, months);
+}
+
+// 14 -> "1 yr 2 mos", 5 -> "5 mos", 12 -> "1 yr".
+export function formatDuration(months) {
+  const y = Math.floor(months / 12);
+  const m = months % 12;
+  const parts = [];
+  if (y) parts.push(`${y} yr${y === 1 ? "" : "s"}`);
+  if (m || !y) parts.push(`${m} mo${m === 1 ? "" : "s"}`);
+  return parts.join(" ");
+}
+
 export function timeAgo(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr);

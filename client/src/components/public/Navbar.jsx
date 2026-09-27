@@ -6,11 +6,12 @@ import Icon from "../ui/Icon.jsx";
 import { useTheme } from "../../context/ThemeContext.jsx";
 import { AppButton } from "../ui/app-button.jsx";
 import { FaBars, FaTimes, FaSun, FaMoon } from "react-icons/fa";
+import { PulseDot } from "../ui/pulse-dot.jsx";
 
 export default function Navbar() {
   const { data: nav = [] } = useNavigation();
   const { data: settings } = useSiteSettings();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   // 50% of the navbar height (h-14 = 56px). Once content scrolls past this
@@ -66,10 +67,7 @@ export default function Navbar() {
         <div className="flex items-center gap-1.5">
           {settings?.availability && (
             <span className="hidden items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 lg:inline-flex">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              </span>
+              <PulseDot />
               {settings.availability}
             </span>
           )}
@@ -77,7 +75,7 @@ export default function Navbar() {
           <AppButton
             variant="ghost"
             size="icon-sm"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={toggleTheme}
             aria-label="Toggle color theme"
           >
             {theme === "dark" ? <FaSun className="h-4 w-4" /> : <FaMoon className="h-4 w-4" />}

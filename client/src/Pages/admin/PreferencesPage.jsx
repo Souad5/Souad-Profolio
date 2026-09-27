@@ -11,6 +11,7 @@ import {
   FONT_SCALE_OPTIONS,
 } from "../../hooks/usePreferences.js";
 import Icon from "../../components/ui/Icon.jsx";
+import { Switch } from "../../components/ui/switch.jsx";
 
 const THEME_ICONS = { light: "FaSun", dark: "FaMoon", system: "FaLaptop" };
 const THEME_LABELS = { light: "Light", dark: "Dark", system: "System" };
@@ -62,17 +63,7 @@ function RadioGroup({ options, value, onChange, name }) {
 }
 
 function Toggle({ checked, onChange, label }) {
-  return (
-    <label className="flex cursor-pointer items-center gap-3">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="toggle toggle-primary"
-        aria-label={label}
-      />
-    </label>
-  );
+  return <Switch checked={!!checked} onCheckedChange={(v) => onChange(!!v)} aria-label={label} />;
 }
 
 export default function PreferencesPage() {

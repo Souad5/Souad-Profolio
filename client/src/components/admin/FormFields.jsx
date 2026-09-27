@@ -3,18 +3,23 @@ import { AppTextarea } from "../ui/app-textarea.jsx";
 import { Label } from "../ui/label.jsx";
 import { RadioGroup, RadioGroupItem } from "../ui/radio.jsx";
 import { cn } from "../../lib/utils.js";
+import { Switch } from "../ui/switch.jsx";
 
-export function Field({ label, children, hint, required, className }) {
+export function Field({ label, children, hint, required, error, className }) {
   return (
-    <div className={cn("flex w-full flex-col gap-1.5", className)}>
+    <div className={cn("flex w-full flex-col gap-1.5", className)} data-invalid={error ? "" : undefined}>
       {label && (
         <Label>
           {label}
-          {required && <span className="text-destructive"> *</span>}
+          {required && <span className="text-destructive" aria-hidden="true"> *</span>}
         </Label>
       )}
       {children}
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      {error ? (
+        <p role="alert" className="text-xs font-medium text-destructive">{error}</p>
+      ) : (
+        hint && <p className="text-xs text-muted-foreground">{hint}</p>
+      )}
     </div>
   );
 }
@@ -29,15 +34,10 @@ export function TextArea({ ...props }) {
 
 export function Toggle({ checked, onChange, label }) {
   return (
-    <div className="flex items-center justify-between gap-3">
-      <Label className="cursor-pointer">{label}</Label>
-      <input
-        type="checkbox"
-        className="toggle toggle-primary"
-        checked={!!checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-    </div>
+    <label className="flex cursor-pointer items-center justify-between gap-3">
+      <span className="text-sm font-medium">{label}</span>
+      <Switch checked={!!checked} onCheckedChange={(v) => onChange(!!v)} />
+    </label>
   );
 }
 
@@ -82,14 +82,6 @@ export function RadioField({ label, value, onChange, options, className }) {
   );
 }
 
-export function StatusToggle({ checked, onChange }) {
-  return (
-    <input
-      type="checkbox"
-      className="toggle toggle-success toggle-sm"
-      checked={!!checked}
-      onChange={(e) => onChange(e.target.checked)}
-      aria-label="toggle status"
-    />
-  );
+export function StatusToggle({ checked, onChange, label = "Toggle status" }) {
+  return <Switch size="sm" checked={!!checked} onCheckedChange={(v) => onChange(!!v)} aria-label={label} />;
 }

@@ -21,7 +21,7 @@ export default function NavigationPage() {
       fields={[
         { name: "label", label: "Label", required: true },
         { name: "target", label: "Anchor Target", hint: "Must match a section name on the homepage (e.g. home, about, skills, projects, contact)", required: true },
-        { name: "order", label: "Order", type: "number" },
+        { name: "order", label: "Order", type: "number", min: 0 },
         { name: "enabled", label: "Enabled", type: "boolean" },
       ]}
       emptyMessage="No navigation items"

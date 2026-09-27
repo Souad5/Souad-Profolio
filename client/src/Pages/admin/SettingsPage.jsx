@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { admin as adminApi, fetchSections } from "../../api/endpoints.js";
 import { LoadingState, ErrorState } from "../../components/admin/States.jsx";
 import { Field, TextInput, TextArea } from "../../components/admin/FormFields.jsx";
 import ImageInput from "../../components/admin/ImageInput.jsx";
+import ConfirmDialog from "../../components/admin/ConfirmDialog.jsx";
 import { useToast } from "../../lib/toast.jsx";
 import { AppButton } from "../../components/ui/app-button.jsx";
 import {
@@ -15,6 +16,7 @@ import {
 } from "../../components/ui/card.jsx";
 import { FaTrash, FaPlus, FaSave } from "react-icons/fa";
 import { cn } from "../../lib/utils.js";
+import { Switch } from "../../components/ui/switch.jsx";
 
 function TagEditor({ value = [], onChange }) {
   const [draft, setDraft] = useState("");
@@ -100,9 +102,12 @@ export default function SettingsPage() {
     select: (res) => res?.data,
   });
 
+  // Unsaved edits in the settings form. Refetches (e.g. after saving a social
+  // link) must not overwrite them, so the form only re-syncs when clean.
+  const dirtyRef = useRef(false);
   useEffect(() => {
     if (data) {
-      setForm({ ...data });
+      if (!dirtyRef.current) setForm({ ...data });
       setSocials(data.socialLinks ?? []);
     }
   }, [data]);
@@ -113,7 +118,17 @@ export default function SettingsPage() {
 
   const saveMut = useMutation({ mutationFn: (payload) => adminApi.siteSettings.update(payload) });
 
-  const upd = (key, val) => setForm((prev) => ({ ...prev, [key]: val }));
+  const upd = (key, val) => {
+    dirtyRef.current = true;
+    setForm((prev) => ({ ...prev, [key]: val }));
+  };
+  const [removingSocial, setRemovingSocial] = useState(null);
+
+  // Admin form + the public site's settings/SEO caches (socials, hero, meta tags).
+  const refreshSettingsCaches = () =>
+    Promise.all(
+      [["settings"], ["site-settings"], ["seo"]].map((queryKey) => qc.invalidateQueries({ queryKey }))
+    );
 
   async function save() {
     try {
@@ -123,9 +138,9 @@ export default function SettingsPage() {
         if (!EXCLUDED.has(k) && v !== undefined && v !== null) payload[k] = v;
       }
       await saveMut.mutateAsync(payload);
+      dirtyRef.current = false;
       toast.success("Settings saved");
-      await qc.invalidateQueries({ queryKey: ["settings"] });
-      await qc.invalidateQueries({ queryKey: ["site-settings"] });
+      await refreshSettingsCaches();
     } catch (err) {
       toast.error(err.message || "Failed to save");
     }
@@ -136,33 +151,43 @@ export default function SettingsPage() {
       const created = (await adminApi.siteSettings.addSocial({ label: "New Link", url: "https://example.com", icon: "FaExternalLinkAlt", order: socials.length, enabled: false })).data;
       setSocials((prev) => [...prev, created]);
       toast.success("Link added");
-      await qc.invalidateQueries({ queryKey: ["settings"] });
+      await refreshSettingsCaches();
     } catch (err) {
       toast.error(err.message || "Failed to add");
     }
   }
 
-  async function updateSocial(social, patch) {
-    const next = socials.map((s) => (s.id === social.id ? { ...s, ...patch } : s));
-    setSocials(next);
+  // Typing only updates local state; the change is saved when the field loses
+  // focus (or a toggle flips). Saving per keystroke used to send half-typed
+  // URLs, which the server rejects — and the revert then fought the typing.
+  function editSocial(id, patch) {
+    setSocials((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+  }
+
+  async function persistSocial(id, patch) {
+    const saved = data?.socialLinks?.find((s) => s.id === id);
+    if (saved && Object.entries(patch).every(([k, v]) => saved[k] === v)) return; // unchanged
     try {
-      await adminApi.siteSettings.updateSocial(social.id, patch);
-      await qc.invalidateQueries({ queryKey: ["settings"] });
+      await adminApi.siteSettings.updateSocial(id, patch);
+      toast.success("Link saved");
+      await refreshSettingsCaches();
     } catch (err) {
       toast.error(err.message || "Failed to update");
-      setSocials(socials);
+      if (saved) editSocial(id, saved); // restore the last saved values
     }
   }
 
-  async function removeSocial(social) {
-    setSocials((prev) => prev.filter((s) => s.id !== social.id));
+  async function removeSocial() {
+    const social = removingSocial;
+    if (!social) return;
     try {
       await adminApi.siteSettings.deleteSocial(social.id);
-      await qc.invalidateQueries({ queryKey: ["settings"] });
+      setSocials((prev) => prev.filter((s) => s.id !== social.id));
+      setRemovingSocial(null);
       toast.success("Link removed");
+      await refreshSettingsCaches();
     } catch (err) {
       toast.error(err.message || "Failed to remove");
-      setSocials((prev) => [...prev, social]);
     }
   }
 
@@ -172,6 +197,7 @@ export default function SettingsPage() {
     try {
       await adminApi.sections.update(section.id, { enabled: !section.enabled });
       await qc.invalidateQueries({ queryKey: ["sections"] });
+      await qc.invalidateQueries({ queryKey: ["navigation"] });
       toast.success("Section updated");
     } catch (err) {
       toast.error(err.message || "Failed to update");
@@ -259,8 +285,8 @@ export default function SettingsPage() {
             <Field label="Description" className="md:col-span-2"><TextArea rows={3} value={form.heroDescription} onChange={(e) => upd("heroDescription", e.target.value)} /></Field>
             <Field label="Marquee Tags" className="md:col-span-2"><TagEditor value={form.heroTags} onChange={(v) => upd("heroTags", v)} /></Field>
             <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-              <span className="text-sm font-medium">Enable Hero Section</span>
-              <input type="checkbox" className="toggle toggle-primary" checked={!!form.heroEnabled} onChange={(e) => upd("heroEnabled", e.target.checked)} />
+              <span id="hero-enabled-label" className="text-sm font-medium">Enable Hero Section</span>
+              <Switch aria-labelledby="hero-enabled-label" checked={!!form.heroEnabled} onCheckedChange={(v) => upd("heroEnabled", !!v)} />
             </div>
           </CardContent>
         </Card>
@@ -295,14 +321,21 @@ export default function SettingsPage() {
             {socials.map((s) => (
               <div key={s.id} className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-end">
                 <div className="grid flex-1 gap-2 sm:grid-cols-2">
-                  <Field label="Label"><TextInput value={s.label} onChange={(e) => updateSocial(s, { label: e.target.value })} /></Field>
-                  <Field label="URL"><TextInput value={s.url} onChange={(e) => updateSocial(s, { url: e.target.value })} /></Field>
-                  <Field label="Icon"><TextInput value={s.icon} onChange={(e) => updateSocial(s, { icon: e.target.value })} hint="react-icons name" /></Field>
-                  <Field label="Order"><TextInput type="number" value={s.order} onChange={(e) => updateSocial(s, { order: Number(e.target.value) })} /></Field>
+                  <Field label="Label"><TextInput value={s.label} onChange={(e) => editSocial(s.id, { label: e.target.value })} onBlur={(e) => persistSocial(s.id, { label: e.target.value.trim() })} /></Field>
+                  <Field label="URL"><TextInput type="url" inputMode="url" placeholder="https://" value={s.url} onChange={(e) => editSocial(s.id, { url: e.target.value })} onBlur={(e) => persistSocial(s.id, { url: e.target.value.trim() })} /></Field>
+                  <Field label="Icon" hint="react-icons name"><TextInput value={s.icon} onChange={(e) => editSocial(s.id, { icon: e.target.value })} onBlur={(e) => persistSocial(s.id, { icon: e.target.value.trim() })} /></Field>
+                  <Field label="Order"><TextInput type="number" min={0} value={s.order} onChange={(e) => editSocial(s.id, { order: e.target.value })} onBlur={(e) => persistSocial(s.id, { order: Number(e.target.value) || 0 })} /></Field>
                 </div>
                 <div className="flex items-center gap-2 pb-1">
-                  <label className="label cursor-pointer"><input type="checkbox" className="toggle toggle-sm toggle-primary" checked={!!s.enabled} onChange={(e) => updateSocial(s, { enabled: e.target.checked })} /></label>
-                  <AppButton variant="ghost" size="sm" className="text-error hover:text-error dark:hover:text-red-400" onClick={() => removeSocial(s)} aria-label={`Remove ${s.label || "link"}`}><FaTrash /></AppButton>
+                  <Switch
+                    aria-label={`Show ${s.label || "link"} on the site`}
+                    checked={!!s.enabled}
+                    onCheckedChange={(v) => {
+                      editSocial(s.id, { enabled: !!v });
+                      persistSocial(s.id, { enabled: !!v });
+                    }}
+                  />
+                  <AppButton variant="ghost" size="sm" className="text-error hover:text-error dark:hover:text-red-400" onClick={() => setRemovingSocial(s)} aria-label={`Remove ${s.label || "link"}`}><FaTrash /></AppButton>
                 </div>
               </div>
             ))}
@@ -325,12 +358,18 @@ export default function SettingsPage() {
                   <span className="text-sm font-medium">{s.label}</span>
                   <span className="ml-2 text-xs text-muted-foreground">order: {s.order}</span>
                 </div>
-                <input type="checkbox" className="toggle toggle-primary" checked={!!s.enabled} onChange={() => toggleSection(s)} />
+                <Switch aria-label={`Show the ${s.label} section`} checked={!!s.enabled} onCheckedChange={() => toggleSection(s)} />
               </div>
             ))}
           </CardContent>
         </Card>
       )}
+      <ConfirmDialog
+        open={!!removingSocial}
+        message={`Remove the "${removingSocial?.label || "social"}" link? It will disappear from the portfolio.`}
+        onConfirm={removeSocial}
+        onCancel={() => setRemovingSocial(null)}
+      />
     </div>
   );
 }

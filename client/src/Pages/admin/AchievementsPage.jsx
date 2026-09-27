@@ -21,7 +21,7 @@ export default function AchievementsPage() {
         { name: "title", label: "Title", required: true },
         { name: "detail", label: "Detail", type: "textarea", rows: 3 },
         { name: "icon", label: "Icon", hint: "react-icons name, e.g. FaTrophy, FaMedal" },
-        { name: "order", label: "Order", type: "number" },
+        { name: "order", label: "Order", type: "number", min: 0 },
         { name: "enabled", label: "Enabled", type: "boolean" },
       ]}
       emptyMessage="No achievements yet"

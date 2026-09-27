@@ -36,7 +36,7 @@ export default function ExperiencePage() {
         { name: "company", label: "Company", required: true },
         { name: "employmentType", label: "Employment Type", placeholder: "Full-time, Freelance, Internship…" },
         { name: "location", label: "Location", placeholder: "Remote / City" },
-        { name: "startDate", label: "Start Date", type: "date" },
+        { name: "startDate", label: "Start Date", type: "date", required: true },
         { name: "endDate", label: "End Date", type: "date" },
         {
           name: "current",
@@ -57,7 +57,7 @@ export default function ExperiencePage() {
         },
         { name: "technologies", label: "Technologies", type: "tags", hint: "One per line" },
         { name: "logo", label: "Company Logo URL", type: "image" },
-        { name: "order", label: "Order", type: "number" },
+        { name: "order", label: "Order", type: "number", min: 0 },
         {
           name: "enabled",
           label: "Visibility",

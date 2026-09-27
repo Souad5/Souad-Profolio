@@ -35,7 +35,7 @@ export default function EducationPage() {
         { name: "startYear", label: "Start Date", type: "date" },
         { name: "endYear", label: "End Date", type: "date" },
         { name: "image", label: "Institution Logo URL", type: "image" },
-        { name: "order", label: "Order", type: "number" },
+        { name: "order", label: "Order", type: "number", min: 0 },
         { name: "enabled", label: "Enabled", type: "boolean" },
       ]}
       emptyMessage="No education yet"

@@ -21,7 +21,7 @@ export default function ServicesPage() {
         { name: "title", label: "Service Title", required: true },
         { name: "description", label: "Description", type: "textarea", rows: 4 },
         { name: "icon", label: "Icon", hint: "react-icons name, e.g. FaCode, FaLaptopCode" },
-        { name: "order", label: "Order", type: "number" },
+        { name: "order", label: "Order", type: "number", min: 0 },
         { name: "enabled", label: "Enabled", type: "boolean" },
       ]}
       emptyMessage="No services yet"

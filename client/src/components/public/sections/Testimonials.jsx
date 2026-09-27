@@ -28,7 +28,7 @@ export default function Testimonials() {
               <div className="avatar">
                 <div className="w-11 rounded-full bg-brand-600/10">
                   {t.avatar ? (
-                    <img src={t.avatar} alt={t.name} />
+                    <img src={t.avatar} alt={t.name} width={44} height={44} loading="lazy" decoding="async" />
                   ) : (
                     <span className="flex h-full items-center justify-center text-sm font-semibold text-brand-600 dark:text-brand-400">
                       {t.name?.[0]}

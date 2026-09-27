@@ -17,6 +17,8 @@ export default function useCanvasCursor() {
     // Respect the OS-level motion-sensitivity preference (public-facing,
     // independent of the admin-only Preferences toggle).
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Touch-only devices have no cursor to trail; skip the render loop entirely.
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
     const canvas = document.getElementById("canvas");
     if (!canvas) return;
@@ -116,7 +118,24 @@ export default function useCanvasCursor() {
     }
 
     let lines = [];
-    const pos = { ...Nodes };
+    // The lines spring toward `Nodes`, so pointer updates must write to that
+    // same object (a copy here left the trail stuck at the top-left corner).
+    const pos = Nodes;
+
+    // Idle pause: stop the full-screen redraw loop once the pointer has been
+    // still long enough for the trail to settle, and resume on movement.
+    const IDLE_MS = 1500;
+    let lastMove = 0;
+    function start() {
+      if (ctx.running || document.hidden || !lines.length) return;
+      ctx.running = true;
+      render();
+    }
+    function stop() {
+      ctx.running = false;
+      window.cancelAnimationFrame(rafId);
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
 
     function rebuildLines() {
       lines = [];
@@ -132,15 +151,25 @@ export default function useCanvasCursor() {
       document.addEventListener("touchmove", onMove, { passive: true });
       document.addEventListener("touchstart", onTouchStart, { passive: true });
 
-      onMove(event);
+      // Record the first position before building lines so the trail starts
+      // at the pointer, then start the loop.
+      if (event.touches) {
+        pos.x = event.touches[0].clientX;
+        pos.y = event.touches[0].clientY;
+      } else {
+        pos.x = event.clientX;
+        pos.y = event.clientY;
+      }
       rebuildLines();
-      render();
+      onMove(event);
     }
 
     function onMove(event) {
+      lastMove = performance.now();
+      start();
       if (event.touches) {
-        pos.x = event.touches[0].pageX;
-        pos.y = event.touches[0].pageY;
+        pos.x = event.touches[0].clientX;
+        pos.y = event.touches[0].clientY;
       } else {
         pos.x = event.clientX;
         pos.y = event.clientY;
@@ -152,8 +181,8 @@ export default function useCanvasCursor() {
 
     function onTouchStart(event) {
       if (event.touches.length === 1) {
-        pos.x = event.touches[0].pageX;
-        pos.y = event.touches[0].pageY;
+        pos.x = event.touches[0].clientX;
+        pos.y = event.touches[0].clientY;
       }
     }
 
@@ -161,6 +190,10 @@ export default function useCanvasCursor() {
 
     function render() {
       if (!ctx.running) return;
+      if (performance.now() - lastMove > IDLE_MS) {
+        stop();
+        return;
+      }
       ctx.globalCompositeOperation = "source-over";
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       ctx.globalCompositeOperation = "lighter";
@@ -181,19 +214,21 @@ export default function useCanvasCursor() {
       ctx.canvas.height = window.innerHeight;
     }
 
-    // Focus/blur handlers stored as references so cleanup can remove them.
+    // Pause while the window is blurred or the tab is hidden (these used to
+    // keep the loop running). Handlers are stored so cleanup can remove them.
     function onFocus() {
-      if (!ctx.running) {
-        ctx.running = true;
-        render();
-      }
+      lastMove = performance.now();
+      start();
     }
     function onBlur() {
-      ctx.running = true;
+      stop();
+    }
+    function onVisibility() {
+      if (document.hidden) stop();
     }
 
     function setup() {
-      ctx.running = true;
+      ctx.running = false;
       ctx.frame = 1;
       wave = new SineWave({
         phase: Math.random() * 2 * Math.PI,
@@ -208,6 +243,7 @@ export default function useCanvasCursor() {
       window.addEventListener("resize", resizeCanvas);
       window.addEventListener("focus", onFocus);
       window.addEventListener("blur", onBlur);
+      document.addEventListener("visibilitychange", onVisibility);
 
       resizeCanvas();
     }
@@ -227,6 +263,7 @@ export default function useCanvasCursor() {
       window.removeEventListener("resize", resizeCanvas);
       window.removeEventListener("focus", onFocus);
       window.removeEventListener("blur", onBlur);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 }
