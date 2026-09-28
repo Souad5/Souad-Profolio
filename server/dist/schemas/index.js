@@ -1,182 +1,247 @@
 import { z } from "zod";
-const idParam = z.object({ id: z.coerce.number().int().positive() });
-const stringArray = z.array(z.string()).default([]);
-const jsonArray = z.array(z.unknown()).default([]);
-// ---- Auth ----
-export const loginSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(1, "Password is required"),
+const idParam = z.object({
+    id: z.coerce.number({ invalid_type_error: "Invalid id" }).int("Invalid id").positive("Invalid id"),
 });
-// ---- Site settings ----
+/* ------------------------------------------------------------------ */
+/* Shared field helpers                                                */
+/* ------------------------------------------------------------------ */
+// These mirror what the admin forms send: numbers as numbers (or numeric
+// strings), "" for cleared text/dates, arrays for tag fields.
+const stringArray = z.array(z.string().max(200)).default([]);
+const jsonArray = z.array(z.unknown()).default([]);
+/** Integer that also accepts numeric strings (e.g. "3" from a <select>). */
+const int = () => z.coerce.number().int();
+/** Optional text column (non-nullable in the DB): null is treated as "not sent". */
+const text = (max = 5000) => z
+    .string()
+    .max(max)
+    .nullish()
+    .transform((v) => v ?? undefined);
+/** Optional nullable text column: "" and null both clear it. */
+const nullableText = (max = 5000) => z
+    .string()
+    .max(max)
+    .nullish()
+    .transform((v) => (v === "" ? null : v));
+// `z.string().url()` accepts `javascript:` URLs, and these values are rendered
+// as href/src on the public site — so restrict the scheme explicitly.
+const SAFE_LINK = /^(https?:\/\/|mailto:|tel:|\/(?!\/))/i;
+const SAFE_MEDIA = /^(https?:\/\/|\/(?!\/)|data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,)/i;
+/** External link: http(s), mailto:, tel: or a site-relative path. "" clears it. */
+const link = (msg = "Must be an http(s) URL, mailto:, tel: or a /path") => z
+    .string()
+    .trim()
+    .max(2000)
+    .refine((v) => v === "" || SAFE_LINK.test(v), msg)
+    .nullish()
+    .transform((v) => v ?? undefined);
+const nullableLink = () => z
+    .string()
+    .trim()
+    .max(2000)
+    .refine((v) => v === "" || SAFE_LINK.test(v), "Must be an http(s) URL or a /path")
+    .nullish()
+    .transform((v) => (v === "" ? null : v));
+/** Image source: http(s) URL, /path, or an inline base64 image. "" clears it. */
+const media = () => z
+    .string()
+    .trim()
+    .max(1_500_000)
+    .refine((v) => v === "" || SAFE_MEDIA.test(v), "Must be an image URL (http/https) or a /path")
+    .nullish()
+    .transform((v) => v ?? undefined);
+/** Date input value ("YYYY-MM-DD" / ISO); "" and null clear it. */
+const optionalDate = z.preprocess((v) => (v === "" ? null : v), z.coerce.date({ invalid_type_error: "Invalid date" }).nullable().optional());
+/* ------------------------------------------------------------------ */
+/* Auth                                                                */
+/* ------------------------------------------------------------------ */
+export const loginSchema = z.object({
+    email: z.string().trim().toLowerCase().email().max(200),
+    password: z.string().min(1, "Password is required").max(200),
+});
+/* ------------------------------------------------------------------ */
+/* Site settings                                                       */
+/* ------------------------------------------------------------------ */
 export const siteSettingsSchema = z.object({
-    name: z.string().default("Md Souad Al Kabir"),
-    title: z.string().default("MERN Stack Developer"),
-    shortBio: z.string().optional(),
-    email: z.string().email().optional(),
-    phone: z.string().optional(),
-    location: z.string().optional(),
-    profileImage: z.string().optional(),
-    resumeUrl: z.string().optional(),
-    availability: z.string().optional(),
-    heroGreeting: z.string().optional(),
-    heroHeading: z.string().optional(),
-    heroHighlight: z.string().optional(),
-    heroSubtitle: z.string().optional(),
-    heroDescription: z.string().optional(),
-    heroPrimaryCta: z.string().optional(),
-    heroSecondaryCta: z.string().optional(),
+    name: z.string().min(1).max(120).default("Md Souad Al Kabir"),
+    title: z.string().max(120).default("MERN Stack Developer"),
+    shortBio: text(2000),
+    email: z.union([z.literal(""), z.string().trim().email("Invalid email")]).optional(),
+    phone: text(50),
+    location: text(120),
+    profileImage: media(),
+    resumeUrl: link(),
+    availability: text(120),
+    heroGreeting: text(120),
+    heroHeading: text(200),
+    heroHighlight: text(120),
+    heroSubtitle: text(200),
+    heroDescription: text(1000),
+    heroPrimaryCta: text(60),
+    heroSecondaryCta: text(60),
     heroEnabled: z.boolean().optional(),
     heroTags: stringArray.optional(),
-    seoTitle: z.string().optional(),
-    seoDescription: z.string().optional(),
-    seoKeywords: z.string().optional(),
-    seoOgImage: z.string().optional(),
-    seoAuthor: z.string().optional(),
-    seoCanonicalUrl: z.string().optional(),
+    seoTitle: text(200),
+    seoDescription: text(500),
+    seoKeywords: text(500),
+    seoOgImage: media(),
+    seoAuthor: text(120),
+    seoCanonicalUrl: link("Must be a full http(s) URL"),
 });
 export const socialLinkSchema = z.object({
-    label: z.string().min(1),
-    url: z.string().url(),
-    icon: z.string().default("FaGithub"),
-    order: z.number().int().default(0),
+    label: z.string().trim().min(1, "Label is required").max(60),
+    url: z
+        .string()
+        .trim()
+        .min(1, "URL is required")
+        .max(2000)
+        .refine((v) => SAFE_LINK.test(v), "Must be an http(s) URL, mailto: or tel:"),
+    icon: z.string().max(60).default("FaGithub"),
+    order: int().default(0),
     enabled: z.boolean().default(true),
 });
 export const socialLinkUpdateSchema = socialLinkSchema.partial();
-// ---- About ----
+/* ------------------------------------------------------------------ */
+/* Content entities                                                    */
+/* ------------------------------------------------------------------ */
 export const aboutSchema = z.object({
-    heading: z.string().optional(),
-    description: z.string().optional(),
-    image: z.string().optional(),
+    heading: text(120),
+    description: text(10000),
+    image: media(),
     focusPoints: jsonArray.optional(),
     skillTags: stringArray.optional(),
     highlights: jsonArray.optional(),
     enabled: z.boolean().optional(),
-    order: z.number().int().optional(),
+    order: int().optional(),
 });
-// ---- Skills ----
 export const skillCategorySchema = z.object({
-    name: z.string().min(1),
-    order: z.number().int().default(0),
+    name: z.string().trim().min(1, "Name is required").max(80),
+    order: int().default(0),
     enabled: z.boolean().default(true),
 });
 export const skillSchema = z.object({
-    name: z.string().min(1),
-    level: z.number().int().min(0).max(100).default(0),
-    icon: z.string().default("FaStar"),
-    order: z.number().int().default(0),
+    name: z.string().trim().min(1, "Name is required").max(80),
+    level: int().min(0, "Level must be 0–100").max(100, "Level must be 0–100").default(0),
+    icon: z.string().max(60).default("FaStar"),
+    order: int().default(0),
     enabled: z.boolean().default(true),
-    categoryId: z.number().int().positive(),
+    categoryId: int().positive("Pick a category"),
 });
-// ---- Experience ----
 export const experienceSchema = z.object({
-    company: z.string().min(1),
-    position: z.string().min(1),
-    employmentType: z.string().default("Full-time"),
-    location: z.string().optional(),
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date().nullable().optional(),
+    company: z.string().trim().min(1, "Company is required").max(120),
+    position: z.string().trim().min(1, "Position is required").max(120),
+    employmentType: z.string().max(60).default("Full-time"),
+    location: text(120),
+    startDate: z.coerce.date({ invalid_type_error: "Start date is required" }),
+    endDate: optionalDate,
     current: z.boolean().default(false),
-    description: z.string().optional(),
+    description: z.string().max(10000).default(""),
     highlights: stringArray.optional(),
     technologies: stringArray.optional(),
-    logo: z.string().optional(),
-    order: z.number().int().default(0),
+    logo: media(),
+    order: int().default(0),
     enabled: z.boolean().default(true),
 });
-// ---- Education ----
 export const educationSchema = z.object({
-    institution: z.string().min(1),
-    degree: z.string().min(1),
-    result: z.string().nullable().optional(),
-    image: z.string().optional(),
-    startYear: z.string().nullable().optional(),
-    endYear: z.string().nullable().optional(),
-    order: z.number().int().default(0),
+    institution: z.string().trim().min(1, "Institution is required").max(200),
+    degree: z.string().trim().min(1, "Degree is required").max(200),
+    result: nullableText(60),
+    image: media(),
+    startYear: nullableText(30),
+    endYear: nullableText(30),
+    order: int().default(0),
     enabled: z.boolean().default(true),
 });
-// ---- Projects ----
 export const projectSchema = z.object({
-    title: z.string().min(1),
-    slug: z.string().min(1).optional(),
-    shortDescription: z.string().optional(),
-    description: z.string().optional(),
-    thumbnail: z.string().optional(),
-    gallery: jsonArray.optional(),
+    title: z.string().trim().min(1, "Title is required").max(160),
+    slug: z
+        .string()
+        .trim()
+        .max(80)
+        .regex(/^[a-z0-9-]*$/i, "Slug may only contain letters, numbers and dashes")
+        .optional(),
+    shortDescription: z.string().max(300).default(""),
+    description: z.string().max(10000).default(""),
+    thumbnail: media(),
+    gallery: z.array(z.string().max(2000).refine((v) => SAFE_MEDIA.test(v), "Invalid image URL")).optional(),
     technologies: stringArray.optional(),
-    category: z.string().optional(),
-    liveUrl: z.string().optional(),
-    githubUrl: z.string().optional(),
-    challenges: z.string().nullable().optional(),
-    improvements: z.string().nullable().optional(),
+    category: text(60),
+    liveUrl: link(),
+    githubUrl: link(),
+    challenges: nullableText(5000),
+    improvements: nullableText(5000),
     featured: z.boolean().default(false),
     published: z.boolean().default(true),
-    order: z.number().int().default(0),
+    order: int().default(0),
 });
-// ---- Services ----
 export const serviceSchema = z.object({
-    title: z.string().min(1),
-    description: z.string().optional(),
-    icon: z.string().default("FaCode"),
-    order: z.number().int().default(0),
+    title: z.string().trim().min(1, "Title is required").max(120),
+    description: z.string().max(2000).default(""),
+    icon: z.string().max(60).default("FaCode"),
+    order: int().default(0),
     enabled: z.boolean().default(true),
 });
-// ---- Testimonials ----
 export const testimonialSchema = z.object({
-    name: z.string().min(1),
-    role: z.string().nullable().optional(),
-    company: z.string().nullable().optional(),
-    content: z.string().min(1),
-    avatar: z.string().optional(),
-    rating: z.number().int().min(0).max(5).default(5),
+    name: z.string().trim().min(1, "Name is required").max(120),
+    role: nullableText(120),
+    company: nullableText(120),
+    content: z.string().trim().min(1, "Content is required").max(3000),
+    avatar: media(),
+    rating: int().min(0).max(5).default(5),
     featured: z.boolean().default(false),
-    order: z.number().int().default(0),
+    order: int().default(0),
     enabled: z.boolean().default(true),
 });
-// ---- Certifications ----
 export const certificationSchema = z.object({
-    title: z.string().min(1),
-    issuer: z.string().min(1),
-    year: z.string().nullable().optional(),
-    link: z.string().nullable().optional(),
-    image: z.string().optional(),
-    order: z.number().int().default(0),
+    title: z.string().trim().min(1, "Title is required").max(160),
+    issuer: z.string().trim().min(1, "Issuer is required").max(160),
+    year: nullableText(30),
+    link: nullableLink(),
+    image: media(),
+    order: int().default(0),
     enabled: z.boolean().default(true),
 });
-// ---- Achievements ----
 export const achievementSchema = z.object({
-    title: z.string().min(1),
-    detail: z.string().optional(),
-    icon: z.string().default("FaTrophy"),
-    order: z.number().int().default(0),
+    title: z.string().trim().min(1, "Title is required").max(160),
+    detail: text(1000),
+    icon: z.string().max(60).default("FaTrophy"),
+    order: int().default(0),
     enabled: z.boolean().default(true),
 });
-// ---- Navigation ----
 export const navigationItemSchema = z.object({
-    label: z.string().min(1),
-    target: z.string().min(1),
-    order: z.number().int().default(0),
+    label: z.string().trim().min(1, "Label is required").max(60),
+    target: z
+        .string()
+        .trim()
+        .min(1, "Target is required")
+        .max(60)
+        .regex(/^[a-z0-9-]+$/i, "Target must be a section id (letters, numbers, dashes)"),
+    order: int().default(0),
     enabled: z.boolean().default(true),
 });
-// ---- Contact ----
+/* ------------------------------------------------------------------ */
+/* Public contact form                                                 */
+/* ------------------------------------------------------------------ */
 export const contactMessageSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Valid email required"),
-    subject: z.string().optional(),
-    message: z.string().min(1, "Message is required"),
+    name: z.string().trim().min(1, "Name is required").max(120),
+    email: z.string().trim().email("Valid email required").max(200),
+    subject: z.string().trim().max(200).optional(),
+    message: z.string().trim().min(1, "Message is required").max(5000, "Message is too long (max 5000 characters)"),
 });
-// ---- Section visibility ----
+/* ------------------------------------------------------------------ */
+/* Misc                                                                */
+/* ------------------------------------------------------------------ */
 export const sectionVisibilitySchema = z.object({
-    key: z.string().min(1),
-    label: z.string().optional(),
+    key: z.string().trim().min(1).max(60),
+    label: text(60),
     enabled: z.boolean().optional(),
-    order: z.number().int().optional(),
+    order: int().optional(),
 });
-// ---- Media ----
 export const mediaAssetSchema = z.object({
-    url: z.string().min(1),
-    filename: z.string(),
-    mimeType: z.string(),
-    size: z.number().int(),
+    url: z.string().min(1).refine((v) => SAFE_MEDIA.test(v), "Invalid media URL"),
+    filename: z.string().max(255),
+    mimeType: z.string().regex(/^(image\/(png|jpeg|webp|gif|svg\+xml)|application\/pdf)$/, "Unsupported file type"),
+    size: int().positive().max(5 * 1024 * 1024, "File must be 5 MB or smaller"),
 });
 export { idParam };
 //# sourceMappingURL=index.js.map

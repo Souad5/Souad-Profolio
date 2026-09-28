@@ -1,0 +1,4 @@
+# Netlify deploys only the client; the server is deployed separately (Vercel).
+[build]
+  command = "npm run build -w client"
+  publish = "client/dist"

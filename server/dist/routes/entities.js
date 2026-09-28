@@ -2,6 +2,8 @@ import { Router } from "express";
 import { prisma } from "../config/prisma.js";
 import { crudController } from "../controllers/crud.js";
 import { asyncHandler } from "../utils/handler.js";
+import { validate } from "../middleware/validate.js";
+import { idParam } from "../schemas/index.js";
 // Generic CRUD controllers (admin)
 const skillCat = crudController(prisma.skillCategory);
 const skill = crudController(prisma.skill, {
@@ -48,14 +50,17 @@ const navigation = crudController(prisma.navigationItem, { defaultOrderBy: { ord
 const about = crudController(prisma.about, { defaultOrderBy: { order: "asc" } });
 const visibility = crudController(prisma.sectionVisibility, { defaultOrderBy: { order: "asc" } });
 const media = crudController(prisma.mediaAsset, { defaultOrderBy: { createdAt: "desc" } });
-// Builds a router of protected CRUD routes for an entity
-function crudRoutes(path, ctrl, singular = "id") {
+// Builds a router of protected CRUD routes for an entity. Writes are validated
+// with the entity's Zod schema (full on create, partial on update); unknown
+// keys such as id/createdAt are stripped, so they can't be mass-assigned.
+function crudRoutes(path, ctrl, schema) {
     const router = Router();
+    const id = validate(idParam, "params");
     router.get("/", asyncHandler(ctrl.list));
-    router.get(`/:${singular}`, asyncHandler(ctrl.getById));
-    router.post("/", asyncHandler(ctrl.create));
-    router.put(`/:${singular}`, asyncHandler(ctrl.update));
-    router.delete(`/:${singular}`, asyncHandler(ctrl.remove));
+    router.get("/:id", id, asyncHandler(ctrl.getById));
+    router.post("/", validate(schema), asyncHandler(ctrl.create));
+    router.put("/:id", id, validate(schema.partial()), asyncHandler(ctrl.update));
+    router.delete("/:id", id, asyncHandler(ctrl.remove));
     return router;
 }
 export { skillCat, skill, experience, education, service, testimonial, certification, achievement, navigation, about, visibility, media, crudRoutes };
