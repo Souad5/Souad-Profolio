@@ -24,6 +24,7 @@ The canonical project guide is `AGENTS.md` (commands, architecture, gotchas) —
 ### Client
 - `@` alias → `client/src` (see `vite.config.js`). `components/ui/*` are shadcn-style primitives (`components.json`, style `radix-nova`, JS not TSX) plus custom app components; `cn()` lives in `lib/utils.js`.
 - Animation uses both framer-motion/`motion` and GSAP (`@gsap/react` `useGSAP`) in public sections.
+- Production builds require a non-local `VITE_API_URL` (`vite.config.js` throws otherwise; `ALLOW_LOCAL_API=1` overrides). The `localhost` API fallback is dev-only — shipped in a bundle it makes Chrome show a Local Network Access prompt to every visitor.
 - `api/client.js` is a fetch wrapper: base `VITE_API_URL` (default `http://localhost:5000/api`), 15 s timeout, in-memory Bearer token set via `setAuthToken` (driven by `context/AuthContext`), throws `ApiError(status, message)`.
 - After admin mutations, invalidate the matching TanStack Query keys from `hooks/usePortfolio.js` so the public site reflects changes.
 
