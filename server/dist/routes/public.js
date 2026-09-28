@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { prisma } from "../config/prisma.js";
-import { requireAuth } from "../middleware/auth.js";
+import { requireAdmin, requireAdminAuthEnabled, requireAuth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
-import { contactMessageSchema, siteSettingsSchema, socialLinkSchema, loginSchema, } from "../schemas/index.js";
+import { z } from "zod";
+import { contactMessageSchema, siteSettingsSchema, socialLinkSchema, loginSchema, idParam, aboutSchema, skillCategorySchema, skillSchema, experienceSchema, educationSchema, projectSchema, serviceSchema, testimonialSchema, certificationSchema, achievementSchema, navigationItemSchema, sectionVisibilitySchema, mediaAssetSchema, } from "../schemas/index.js";
 import { login, me } from "../controllers/auth.js";
 import { getSettings, updateSettings, addSocialLink, updateSocialLink, deleteSocialLink, } from "../controllers/settings.js";
 import { listProjects, getProjectBySlug, getProjectById, createProject, updateProject, deleteProject, duplicateProject, } from "../controllers/project.js";
@@ -105,43 +106,48 @@ api.post("/contact", validate(contactMessageSchema), asyncHandler(createContactM
 /* ------------------------------------------------------------------ */
 /* Auth                                                               */
 /* ------------------------------------------------------------------ */
-api.post("/auth/login", validate(loginSchema), asyncHandler(login));
+api.post("/auth/login", requireAdminAuthEnabled, validate(loginSchema), asyncHandler(login));
 api.get("/auth/me", requireAuth, asyncHandler(me));
 /* ------------------------------------------------------------------ */
 /* Admin endpoints (protected)                                         */
 /* ------------------------------------------------------------------ */
 const admin = Router();
-admin.use(requireAuth);
+// Every admin route: valid token AND role ADMIN (403 otherwise).
+admin.use(requireAdmin);
+const id = validate(idParam, "params");
+const reorderSchema = z.object({
+    items: z.array(z.object({ id: z.coerce.number().int().positive(), order: z.coerce.number().int().min(0) })).min(1),
+});
 admin.get("/stats", asyncHandler(getStats));
 admin.get("/site-settings", asyncHandler(getSettings));
 admin.put("/site-settings", validate(siteSettingsSchema.partial()), asyncHandler(updateSettings));
 admin.post("/social-links", validate(socialLinkSchema), asyncHandler(addSocialLink));
-admin.put("/social-links/:id", validate(socialLinkSchema.partial()), asyncHandler(updateSocialLink));
-admin.delete("/social-links/:id", asyncHandler(deleteSocialLink));
+admin.put("/social-links/:id", id, validate(socialLinkSchema.partial()), asyncHandler(updateSocialLink));
+admin.delete("/social-links/:id", id, asyncHandler(deleteSocialLink));
 admin.get("/projects", asyncHandler(listProjects));
-admin.get("/projects/:id", asyncHandler(getProjectById));
-admin.post("/projects", asyncHandler(createProject));
-admin.post("/projects/:id/duplicate", asyncHandler(duplicateProject));
-admin.put("/projects/:id", asyncHandler(updateProject));
-admin.delete("/projects/:id", asyncHandler(deleteProject));
+admin.get("/projects/:id", id, asyncHandler(getProjectById));
+admin.post("/projects", validate(projectSchema), asyncHandler(createProject));
+admin.post("/projects/:id/duplicate", id, asyncHandler(duplicateProject));
+admin.put("/projects/:id", id, validate(projectSchema.partial()), asyncHandler(updateProject));
+admin.delete("/projects/:id", id, asyncHandler(deleteProject));
 // Must be declared before the generic skills mount (it has no conflicting
 // PATCH /:id route, but keep the specific route first for clarity).
-admin.patch("/skills/reorder", asyncHandler(skill.reorder));
-admin.use("/skills", crudRoutes("skills", skill));
-admin.use("/skill-categories", crudRoutes("skill-categories", skillCat));
-admin.use("/experience", crudRoutes("experience", experience));
-admin.use("/education", crudRoutes("education", education));
-admin.use("/services", crudRoutes("services", service));
-admin.use("/testimonials", crudRoutes("testimonials", testimonial));
-admin.use("/certifications", crudRoutes("certifications", certification));
-admin.use("/achievements", crudRoutes("achievements", achievement));
-admin.use("/navigation", crudRoutes("navigation", navigation));
-admin.use("/about", crudRoutes("about", about));
-admin.use("/sections", crudRoutes("sections", visibility));
-admin.use("/media", crudRoutes("media", media));
+admin.patch("/skills/reorder", validate(reorderSchema), asyncHandler(skill.reorder));
+admin.use("/skills", crudRoutes("skills", skill, skillSchema));
+admin.use("/skill-categories", crudRoutes("skill-categories", skillCat, skillCategorySchema));
+admin.use("/experience", crudRoutes("experience", experience, experienceSchema));
+admin.use("/education", crudRoutes("education", education, educationSchema));
+admin.use("/services", crudRoutes("services", service, serviceSchema));
+admin.use("/testimonials", crudRoutes("testimonials", testimonial, testimonialSchema));
+admin.use("/certifications", crudRoutes("certifications", certification, certificationSchema));
+admin.use("/achievements", crudRoutes("achievements", achievement, achievementSchema));
+admin.use("/navigation", crudRoutes("navigation", navigation, navigationItemSchema));
+admin.use("/about", crudRoutes("about", about, aboutSchema));
+admin.use("/sections", crudRoutes("sections", visibility, sectionVisibilitySchema));
+admin.use("/media", crudRoutes("media", media, mediaAssetSchema));
 admin.get("/contact-messages", asyncHandler(listMessages));
-admin.patch("/contact-messages/:id/read", asyncHandler(markRead));
-admin.delete("/contact-messages/:id", asyncHandler(deleteMessage));
+admin.patch("/contact-messages/:id/read", id, asyncHandler(markRead));
+admin.delete("/contact-messages/:id", id, asyncHandler(deleteMessage));
 api.use("/admin", admin);
 export default api;
 //# sourceMappingURL=public.js.map
