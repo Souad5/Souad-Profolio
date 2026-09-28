@@ -1,4 +1,12 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// The localhost fallback is dev-only. A production bundle that calls
+// localhost makes Chrome show its Local Network Access prompt ("…is asking to
+// access other apps and services on this device") to every visitor.
+// vite.config.js also refuses to build for production without a real URL.
+const API_URL =
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000/api" : "/api");
+if (!import.meta.env.VITE_API_URL && !import.meta.env.DEV) {
+  console.error("VITE_API_URL is not set for this build; API calls will go to /api on this origin.");
+}
 const REQUEST_TIMEOUT_MS = 15000;
 
 let token = null;
