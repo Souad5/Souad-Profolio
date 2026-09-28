@@ -1,0 +1,1 @@
+import{s as e,y as a}from"./index-BX1Hkppf.js";const t=s=>s?.data,u=()=>e({queryKey:["admin-stats"],queryFn:a.stats,select:t}),r=(s=8)=>e({queryKey:["admin-messages",s],queryFn:()=>a.messages.list({limit:s}),select:t});export{r as a,u};
