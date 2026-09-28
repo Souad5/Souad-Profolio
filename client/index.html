@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/jpeg" href="/md.jpg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Original+Surfer&display=swap"
+      rel="stylesheet"
+    />
+    <meta
+      name="google-site-verification"
+      content="Eta8MRoG5AJaEA25VwnjqGLZnwKFvrTL-WiZJ85Evkc"
+    />
+    <title>Souad. || MERN Developer</title>
+    <!--
+      Static fallbacks for crawlers and link-preview bots, which don't run
+      JavaScript. SeoUpdater replaces these at runtime with the values from
+      the admin SEO settings (the source of truth) — keep them roughly in sync.
+    -->
+    <meta
+      name="description"
+      content="Portfolio of Md Souad Al Kabir, a MERN stack web developer building scalable and impactful web applications."
+    />
+    <meta name="author" content="Md Souad Al Kabir" />
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Md Souad Al Kabir" />
+    <meta property="og:title" content="Souad || MERN Developer" />
+    <meta
+      property="og:description"
+      content="Portfolio of Md Souad Al Kabir, a MERN stack web developer building scalable and impactful web applications."
+    />
+    <meta property="og:image" content="/Souad.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Apply theme preferences before React mounts to avoid a flash of the
+      // default theme: the public theme on the portfolio, and the admin UI's
+      // own theme + font size on /admin (the two never touch each other).
+      (function () {
+        try {
+          var prefs = JSON.parse(
+            localStorage.getItem("admin:preferences") || "{}",
+          );
+          var theme = prefs.theme || "system";
+          var dark =
+            theme === "dark" ||
+            (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          var root = document.documentElement;
+          if (window.location.pathname.indexOf("/admin") !== 0) {
+            // Public site: apply the saved theme before first paint so dark
+            // visitors don't see a flash of the light theme (ThemeContext
+            // otherwise only applies it after React mounts).
+            var pub = localStorage.getItem("portfolio_theme") || "system";
+            var pubDark =
+              pub === "dark" ||
+              (pub === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+            root.classList.add(pubDark ? "dark" : "light");
+          }
+          if (window.location.pathname.indexOf("/admin") === 0) {
+            root.setAttribute(
+              "data-admin-theme",
+              dark ? "dark" : "light",
+            );
+            root.setAttribute(
+              "data-admin-font-scale",
+              prefs.fontScale || "md",
+            );
+          }
+        } catch (e) {
+          /* ignore — fall back to defaults */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
