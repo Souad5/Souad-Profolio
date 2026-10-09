@@ -14,7 +14,7 @@
       name="google-site-verification"
       content="Eta8MRoG5AJaEA25VwnjqGLZnwKFvrTL-WiZJ85Evkc"
     />
-    <title>Souad. || MERN Developer</title>
+    <title>Md Souad Al Kabir – Junior Software Engineer (MERN Stack)</title>
     <!--
       Static fallbacks for crawlers and link-preview bots, which don't run
       JavaScript. SeoUpdater replaces these at runtime with the values from
@@ -22,20 +22,60 @@
     -->
     <meta
       name="description"
-      content="Portfolio of Md Souad Al Kabir, a MERN stack web developer building scalable and impactful web applications."
+      content="Portfolio of Md Souad Al Kabir, a Junior Software Engineer from Bangladesh building scalable full-stack web applications with React, Node.js, Express and MongoDB."
     />
     <meta name="author" content="Md Souad Al Kabir" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://souadalkabir.netlify.app/" />
     <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Md Souad Al Kabir" />
-    <meta property="og:title" content="Souad || MERN Developer" />
+    <meta property="og:title" content="Md Souad Al Kabir – Junior Software Engineer (MERN Stack)" />
+    <meta property="og:url" content="https://souadalkabir.netlify.app/" />
     <meta
       property="og:description"
-      content="Portfolio of Md Souad Al Kabir, a MERN stack web developer building scalable and impactful web applications."
+      content="Portfolio of Md Souad Al Kabir, a Junior Software Engineer from Bangladesh building scalable full-stack web applications with React, Node.js, Express and MongoDB."
     />
-    <meta property="og:image" content="/Souad.jpg" />
+    <meta property="og:image" content="https://souadalkabir.netlify.app/Souad.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
+    <!--
+      Structured data: tells Google this site is the personal portfolio of
+      "Md Souad Al Kabir" (helps name searches and the knowledge panel).
+      Keep sameAs in sync with the social links in the admin settings.
+    -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Person",
+            "@id": "https://souadalkabir.netlify.app/#person",
+            "name": "Md Souad Al Kabir",
+            "alternateName": "Souad",
+            "url": "https://souadalkabir.netlify.app/",
+            "image": "https://souadalkabir.netlify.app/Souad.jpg",
+            "jobTitle": "Junior Software Engineer",
+            "worksFor": { "@type": "Organization", "name": "Kirrhosoft Limited", "url": "https://kirrhosoft.com" },
+            "alumniOf": { "@type": "CollegeOrUniversity", "name": "North South University" },
+            "address": { "@type": "PostalAddress", "addressCountry": "BD" },
+            "knowsAbout": ["React", "Node.js", "Express", "MongoDB", "JavaScript", "TypeScript", "Full-stack web development"],
+            "sameAs": [
+              "https://github.com/souad5",
+              "https://www.linkedin.com/in/souadalkabir/",
+              "https://www.facebook.com/souadalkabirmaruf"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://souadalkabir.netlify.app/#website",
+            "url": "https://souadalkabir.netlify.app/",
+            "name": "Md Souad Al Kabir – Portfolio",
+            "author": { "@id": "https://souadalkabir.netlify.app/#person" }
+          }
+        ]
+      }
+    </script>
     <script>
       // Apply theme preferences before React mounts to avoid a flash of the
       // default theme: the public theme on the portfolio, and the admin UI's
