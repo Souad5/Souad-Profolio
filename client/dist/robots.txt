@@ -1,0 +1,6 @@
+# Allow search engines to index the portfolio; keep the admin panel out.
+User-agent: *
+Allow: /
+Disallow: /admin
+
+Sitemap: https://souadalkabir.netlify.app/sitemap.xml
