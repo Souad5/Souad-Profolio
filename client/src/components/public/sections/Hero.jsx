@@ -6,6 +6,7 @@ import Icon from "../../ui/Icon.jsx";
 import { AppButton } from "../../ui/app-button.jsx";
 import { Section } from "./Section.jsx";
 import { PulseDot } from "../../ui/pulse-dot.jsx";
+import { useIntroDone } from "../../../lib/intro.js";
 
 // Split the stored name into words, flagging those that belong to the
 // admin-configured highlight (e.g. heading "Md Souad Al Kabir" + highlight
@@ -73,6 +74,7 @@ function HeroSkeleton() {
   return (
     <Section name="home" className={HERO_SECTION_CLASS}>
       <div className="mx-auto w-full max-w-4xl animate-pulse text-center">
+        <div className="mx-auto mb-7 h-28 w-28 rounded-full bg-muted sm:h-32 sm:w-32 lg:h-36 lg:w-36" />
         <div className="mx-auto h-7 w-48 rounded-full bg-muted" />
         <div className="mx-auto mt-8 h-4 w-24 rounded bg-muted" />
         <div className="mx-auto mt-5 h-20 w-[75%] rounded-lg bg-muted" />
@@ -101,6 +103,39 @@ function NameWords({ words }) {
   ));
 }
 
+// Round portrait above the name: a slowly spinning brand ring frames the
+// photo, with an "online" dot when the admin has set an availability line.
+function Portrait({ src, alt, available }) {
+  return (
+    <div data-hero="portrait" className="group relative mb-7">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 scale-125 rounded-full bg-brand-500/20 blur-2xl dark:bg-brand-400/15"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute -inset-1 rounded-full bg-[conic-gradient(from_0deg,var(--color-brand-500),transparent_30%,var(--color-brand-300)_55%,transparent_80%,var(--color-brand-500))] motion-safe:animate-[spin_8s_linear_infinite]"
+      />
+      <div className="relative rounded-full bg-background p-1">
+        <img
+          src={src}
+          alt={alt}
+          width={288}
+          height={288}
+          fetchPriority="high"
+          decoding="async"
+          className="h-28 w-28 rounded-full object-cover transition duration-500 ease-out group-hover:scale-[1.04] sm:h-32 sm:w-32 lg:h-36 lg:w-36"
+        />
+      </div>
+      {available && (
+        <span className="absolute bottom-2 right-2 flex rounded-full bg-background p-1 sm:bottom-2.5 sm:right-2.5">
+          <PulseDot size="md" />
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function Hero() {
   const { data: s, isLoading } = useSiteSettings();
   const { data: skills } = useSkills();
@@ -114,7 +149,10 @@ export default function Hero() {
     .filter((sk) => sk && sk.enabled !== false && sk.icon && sk.icon !== "FaStar")
     .slice(0, FLOAT_SLOTS.length);
 
-  const ready = !isLoading && !!s;
+  // Hold the entrance until the preloader starts powering off, so it plays
+  // in view instead of finishing underneath the cover.
+  const introDone = useIntroDone();
+  const ready = !isLoading && !!s && introDone;
 
   const words = nameWords(s?.heroHeading || s?.name, s?.heroHighlight);
   const role = s?.heroSubtitle || s?.title;
@@ -143,7 +181,25 @@ export default function Hero() {
         );
       }
 
-      // 2. Availability pill + greeting.
+      // 2. Portrait pops in, then floats gently.
+      if (has("[data-hero='portrait']")) {
+        tl.fromTo(
+          "[data-hero='portrait']",
+          { opacity: 0, scale: 0.6, filter: "blur(8px)" },
+          { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.9, ease: "back.out(1.6)" },
+          0.05
+        );
+        gsap.to("[data-hero='portrait']", {
+          y: -6,
+          duration: 3,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+          delay: 1,
+        });
+      }
+
+      // 3. Availability pill + greeting.
       if (has("[data-hero='intro']")) {
         tl.fromTo(
           "[data-hero='intro']",
@@ -153,7 +209,7 @@ export default function Hero() {
         );
       }
 
-      // 3. Name words rise out of their clipping spans.
+      // 4. Name words rise out of their clipping spans.
       if (has(".hero-word")) {
         tl.fromTo(
           ".hero-word",
@@ -163,7 +219,7 @@ export default function Hero() {
         );
       }
 
-      // 4. Role, description, CTAs, socials.
+      // 5. Role, description, CTAs, socials.
       if (has("[data-hero='sub']")) {
         tl.fromTo(
           "[data-hero='sub']",
@@ -173,7 +229,7 @@ export default function Hero() {
         );
       }
 
-      // 5. Floating skill icons reveal, then drift forever.
+      // 6. Floating skill icons reveal, then drift forever.
       const floats = gsap.utils.toArray(".hero-float", root);
       if (floats.length) {
         gsap.fromTo(
@@ -241,11 +297,16 @@ export default function Hero() {
 
       {/* Foreground content sits above the backdrop */}
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center text-center">
+        {/* 0. Portrait (Site Settings → Profile Image) */}
+        {s?.profileImage && (
+          <Portrait src={s.profileImage} alt={s.name || "Profile photo"} available={!!s.availability} />
+        )}
+
         {/* 1. Availability pill (the navbar shows its own copy from lg up) */}
         {s?.availability && (
           <p
             data-hero="intro"
-            className="mb-8 inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/5 px-3.5 py-1.5 text-xs font-medium text-emerald-700 lg:hidden dark:text-emerald-400"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/5 px-3.5 py-1.5 text-xs font-medium text-emerald-700 lg:hidden dark:text-emerald-400"
           >
             <PulseDot size="md" />
             {s.availability}

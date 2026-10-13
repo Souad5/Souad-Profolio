@@ -100,6 +100,11 @@
               (pub === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
             root.classList.add(pubDark ? "dark" : "light");
           }
+          // Static boot shell (below) only shows where the preloader will
+          // play: every full load of the home page.
+          if (window.location.pathname !== "/") {
+            root.classList.add("no-intro");
+          }
           if (window.location.pathname.indexOf("/admin") === 0) {
             root.setAttribute(
               "data-admin-theme",
@@ -115,8 +120,39 @@
         }
       })();
     </script>
+    <style>
+      /* Dark frame painted before any JS loads; the React preloader replaces
+         it. Fades itself out after 8 s so a script failure can't trap the page. */
+      #boot-shell {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #020806;
+        animation: boot-shell-out 0.4s ease 8s forwards;
+      }
+      #boot-shell span {
+        width: 0.7rem;
+        height: 1.2rem;
+        background: #34d399;
+        box-shadow: 0 0 12px rgba(52, 211, 153, 0.8);
+        animation: boot-shell-blink 1s steps(1) infinite;
+      }
+      .no-intro #boot-shell {
+        display: none;
+      }
+      @keyframes boot-shell-blink {
+        50% { opacity: 0; }
+      }
+      @keyframes boot-shell-out {
+        to { opacity: 0; visibility: hidden; }
+      }
+    </style>
   </head>
   <body>
+    <div id="boot-shell" aria-hidden="true"><span></span></div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
